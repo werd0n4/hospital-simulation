@@ -5,10 +5,13 @@ class Bed{
     private:
     int y_max, x_max, win_height, win_width;
     int id;
+    std::atomic_bool isOccupied;
     WINDOW* window;
 
     public:
     Bed(int _id) : id(_id){
+        isOccupied = false;
+
         getmaxyx(stdscr, y_max, x_max);
         win_height = y_max/8;
         win_width = x_max/16;

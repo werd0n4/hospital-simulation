@@ -1,9 +1,10 @@
 #include <vector>
 #include <thread>
+#include <atomic>
 #include <ncurses.h>
 #include <condition_variable>
+#include <ctime>
 
-#include "Patient.cpp"
 #include "Doctor.cpp"
 #include "Cleaner.cpp"
 #include "Bed.cpp"
@@ -11,9 +12,11 @@
 #include "OperatingRoom.cpp"
 #include "Reception.cpp"
 #include "Rehabilitation.cpp"
+#include "Patient.cpp"
 
 
 std::mutex refresh_mtx;
+bool running;
 
 void init_screen(){
     initscr();   
@@ -30,8 +33,21 @@ void init_screen(){
     init_pair(7, COLOR_MAGENTA, COLOR_BLACK);//
 }
 
+void getUserInput(){
+    char input;
+
+    while(running){
+        input = getchar();
+        if(input == 'q'){
+            running = false;
+        }
+    }
+}
+
 int main()
 {
+    running = true;
+    srand(time(NULL));
     init_screen();
 
     OperatingRoom operatingRoom{};
@@ -42,6 +58,7 @@ int main()
     std::vector<Bed> beds;
     std::vector<Doctor> doctors;
     std::vector<Patient> patients;
+    std::vector<std::thread> patientThreads;
     // Coatroom coatroom{};
     // Cafeteria cafeteria{};
     // std::vector<Student> students;
@@ -61,7 +78,17 @@ int main()
         patients.push_back(Patient{i});
     }
 
-    getchar();
+    std::thread userInput ([]{getUserInput();});
+    for(auto& patient : patients){
+        patientThreads.push_back(std::thread([&patient, &reception]{patient.treatment(reception);}));
+    }
+
+    userInput.join();
+    for(auto& thread : patientThreads){
+        thread.join();
+    }
+
+    // getchar();
 
     endwin();
     return 0;
