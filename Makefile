@@ -1,8 +1,8 @@
 standard = 17
 libraries = -pthread -lncurses
-target = university.o
+target = hospital.o
 flags = -g -std=c++$(standard)
-files = main.cpp LectureHall.cpp Deanery.cpp Coatroom.cpp Cafeteria.cpp Student.cpp
+files = main.cpp OperatingRoom.cpp Examination.cpp Bed.cpp Doctor.cpp Cleaner.cpp Reception.cpp Rehabilitation.cpp Patient.cpp
 
 $(target): $(files) 
 	g++ main.cpp -o $(target) $(libraries) $(flags) 

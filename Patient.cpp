@@ -1,7 +1,7 @@
 extern std::mutex refresh_mtx;
 
 
-class Student
+class Patient
 {
     private:
     int id, shift;
@@ -10,17 +10,13 @@ class Student
     WINDOW* progresWindow;
 
     public:
-    Student(int _id) : id(_id) {
+    Patient(int _id) : id(_id) {
         getmaxyx(stdscr, y_max, x_max);
         win_height = 3;
         win_width = x_max/8;
-        if(id > 9)
-            shift = 2 * win_width;
-        else
-            shift = 0;
 
-        statusWindow = newwin(win_height, win_width, y_max/3+win_height + (id%10)*win_height, 0 + shift);
-        progresWindow = newwin(win_height, win_width, y_max/3+win_height + (id%10)*win_height, win_width + shift);
+        statusWindow = newwin(win_height, win_width, y_max*.6 + (id%7)*win_height, id/7*(2*win_width));
+        progresWindow = newwin(win_height, win_width, y_max*.6 + (id%7)*win_height, id/7 * (2*win_width) + win_width);
 
         draw();
     }
