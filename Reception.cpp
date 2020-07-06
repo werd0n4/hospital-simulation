@@ -17,7 +17,6 @@ class Reception
     Reception(std::vector<Bed>& _beds) : beds(_beds) {
         isOccupied = false;
         registration_time = 1000;
-        beds = 
 
         getmaxyx(stdscr, y_max, x_max);
         win_height = y_max/6;
@@ -39,10 +38,18 @@ class Reception
         }
     }
 
-    void registerPatient(int patientId){
+    void registerPatient(int patient_id){
         int time = registration_time + rand()%1001;
         time = time / (win_width-2);
-        mvwprintw(window, 3, 3, "Registering patient nr %d", patientId);
+        mvwprintw(window, 3, 3, "Registering patient nr %d", patient_id);
+
+        for(auto& bed : beds){
+            if(!bed.getIsOccupied()){
+                bed.assignPatient(patient_id);
+                break;
+            }
+        }
+
         for(int i = 1; i <= win_width-2; ++i){
             std::this_thread::sleep_for(std::chrono::milliseconds(time));
             {

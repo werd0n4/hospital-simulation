@@ -7,9 +7,9 @@
 
 #include "Doctor.cpp"
 #include "Cleaner.cpp"
-#include "Bed.cpp"
 #include "Examination.cpp"
 #include "OperatingRoom.cpp"
+#include "Bed.cpp"
 #include "Reception.cpp"
 #include "Rehabilitation.cpp"
 #include "Patient.cpp"
@@ -50,15 +50,16 @@ int main()
     srand(time(NULL));
     init_screen();
 
-    OperatingRoom operatingRoom{};
-    Reception reception{};
-    Rehabilitation rehabilitation{};
-    Cleaner cleaner{0};
     std::vector<Examination> examinations;
-    std::vector<Bed> beds;
+    std::vector<Bed> beds(10);
     std::vector<Doctor> doctors;
     std::vector<Patient> patients;
     std::vector<std::thread> patientThreads;
+
+    OperatingRoom operatingRoom{};
+    Reception reception{beds};
+    Rehabilitation rehabilitation{};
+    Cleaner cleaner{0};
     // Coatroom coatroom{};
     // Cafeteria cafeteria{};
     // std::vector<Student> students;
@@ -69,7 +70,7 @@ int main()
         examinations.push_back(Examination{i});
     }
     for(int i = 0; i < 10; ++i){
-        beds.push_back(Bed{i});
+        beds[i].id = i;
     }
     for(int i = 0; i < 3; ++i){
         doctors.push_back(Doctor{i});
