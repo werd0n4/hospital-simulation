@@ -15,12 +15,13 @@ class Bed
 
     Bed(){
         isOccupied = false;
-
         getmaxyx(stdscr, y_max, x_max);
         win_height = y_max/8;
         win_width = x_max/16;
-        window = newwin(win_height, win_width, id < 5 ? 0 : win_height, id%5*win_width + 3./5*x_max);
+    }
 
+    void init(){
+        window = newwin(win_height, win_width, id < 5 ? 0 : win_height, id%5*win_width + 3./5*x_max);
         draw();
     }
 

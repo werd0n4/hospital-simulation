@@ -69,8 +69,10 @@ int main()
     for(int i = 0; i < 2; ++i){
         examinations.push_back(Examination{i});
     }
+    //Beds initialization
     for(int i = 0; i < 10; ++i){
         beds[i].id = i;
+        beds[i].init();
     }
     for(int i = 0; i < 3; ++i){
         doctors.push_back(Doctor{i});
