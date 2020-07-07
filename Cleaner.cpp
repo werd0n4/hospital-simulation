@@ -32,4 +32,10 @@ class Cleaner
             wrefresh(progresWindow);
         }
     }
+
+    void keep_clean(){
+        // clean_beds
+        // clean_examinations
+        // clean_operating
+    }
 };

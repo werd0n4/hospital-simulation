@@ -55,6 +55,7 @@ int main()
     std::vector<Doctor> doctors;
     std::vector<Patient> patients;
     std::vector<std::thread> patientThreads;
+    std::vector<std::thread> doctorThreads;
 
     OperatingRoom operatingRoom{};
     Reception reception{beds};
@@ -81,17 +82,24 @@ int main()
         patients.push_back(Patient{i});
     }
 
+    //threads initialization
     std::thread userInput ([]{getUserInput();});
     for(auto& patient : patients){
         patientThreads.push_back(std::thread([&patient, &reception]{patient.treatment(reception);}));
     }
+    for(auto& doctor : doctors){
+        doctorThreads.push_back(std::thread([&doctor]{doctor.on_duty();}));
+    }
+    std::thread cleanerThread([&cleaner]{cleaner.keep_clean();});
 
     userInput.join();
     for(auto& thread : patientThreads){
         thread.join();
     }
-
-    // getchar();
+    for(auto& thread : doctorThreads){
+        thread.join();
+    }
+    cleanerThread.join();
 
     endwin();
     return 0;

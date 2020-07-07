@@ -42,14 +42,26 @@ class Reception
         int time = registration_time + rand()%1001;
         time = time / (win_width-2);
         mvwprintw(window, 3, 3, "Registering patient nr %d", patient_id);
+        mvwprintw(window, 4, 3, "Waiting for free bed...");
+        {
+            std::lock_guard<std::mutex> refresh_guard(refresh_mtx);
+            wrefresh(window);
+        }
 
-        for(auto& bed : beds){
-            if(!bed.getIsOccupied()){
-                bed.assignPatient(patient_id);
-                break;
+        bool bed_found = false;
+        while(!bed_found){
+            for(auto& bed : beds){
+                std::lock_guard<std::mutex> lg(bed.mtx);
+                if(!bed.getIsOccupied()){
+                    bed.assignPatient(patient_id);
+                    bed_found = true;
+                    break;
+                }
             }
         }
 
+        draw();
+        mvwprintw(window, 3, 3, "Registering patient nr %d", patient_id);
         for(int i = 1; i <= win_width-2; ++i){
             std::this_thread::sleep_for(std::chrono::milliseconds(time));
             {

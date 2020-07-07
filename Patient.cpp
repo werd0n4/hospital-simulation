@@ -59,5 +59,9 @@ class Patient
 
     void treatment(Reception& reception){
         registration(reception);
+        // examination
+        // operation
+        // rehabilitation
+        // discharging
     }
 };
