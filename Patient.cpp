@@ -75,14 +75,17 @@ class Patient
         changeStatus("Waiting for room");
         while(!room_found){
             for(auto& exam : exams){
-                if(!exam.is_patient_in.load()){
-                    exam.is_patient_in.store(true);
-                    exam.cv.notify_one();
-                    exam.patient_id = id;
-                    room_id = exam.id;
-                    room_found = true;
-                    exam.print_info_about_sim();
-                    break;
+                {
+                    std::lock_guard<std::mutex> lg(exam.pat_mtx);
+                    if(!exam.is_patient_in.load()){
+                        exam.is_patient_in.store(true);
+                        exam.cv.notify_one();
+                        exam.patient_id = id;
+                        room_id = exam.id;
+                        room_found = true;
+                        exam.print_info_about_sim();
+                        break;
+                    }
                 }
             } 
         }
