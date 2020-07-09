@@ -21,7 +21,7 @@ class Reception
         getmaxyx(stdscr, y_max, x_max);
         win_height = y_max/6;
         win_width = x_max/5;
-        window = newwin(win_height, win_width, win_height, x_max/4);
+        window = newwin(win_height, win_width, win_height, x_max*0.4);
 
         draw();
     }

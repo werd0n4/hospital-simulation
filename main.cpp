@@ -4,15 +4,16 @@
 #include <ncurses.h>
 #include <condition_variable>
 #include <ctime>
+#include <memory>
 
-#include "Doctor.cpp"
 #include "Cleaner.cpp"
-#include "Examination.cpp"
 #include "OperatingRoom.cpp"
 #include "Bed.cpp"
 #include "Reception.cpp"
 #include "Rehabilitation.cpp"
+#include "Examination.cpp"
 #include "Patient.cpp"
+#include "Doctor.cpp"
 
 
 std::mutex refresh_mtx;
@@ -50,7 +51,7 @@ int main()
     srand(time(NULL));
     init_screen();
 
-    std::vector<Examination> examinations;
+    std::vector<Examination> examinations(2);
     std::vector<Bed> beds(10);
     std::vector<Doctor> doctors;
     std::vector<Patient> patients;
@@ -68,15 +69,14 @@ int main()
     // std::vector<Janitor> janitors;
 
     for(int i = 0; i < 2; ++i){
-        examinations.push_back(Examination{i});
+        examinations[i].init(i);
     }
     //Beds initialization
     for(int i = 0; i < 10; ++i){
-        beds[i].id = i;
-        beds[i].init();
+        beds[i].init(i);
     }
     for(int i = 0; i < 3; ++i){
-        doctors.push_back(Doctor{i});
+        doctors.push_back(Doctor{i, examinations, operatingRoom});
     }
     for(int i = 0; i < 21; ++i){
         patients.push_back(Patient{i});
@@ -85,7 +85,7 @@ int main()
     //threads initialization
     std::thread userInput ([]{getUserInput();});
     for(auto& patient : patients){
-        patientThreads.push_back(std::thread([&patient, &reception]{patient.treatment(reception);}));
+        patientThreads.push_back(std::thread([&patient, &reception, &examinations]{patient.treatment(reception, examinations);}));
     }
     for(auto& doctor : doctors){
         doctorThreads.push_back(std::thread([&doctor]{doctor.on_duty();}));

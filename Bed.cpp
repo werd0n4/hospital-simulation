@@ -5,11 +5,11 @@ class Bed
 {
     private:
     int y_max, x_max, win_height, win_width;
+    int id;
     std::atomic_bool isOccupied;
     WINDOW* window;
 
     public:
-    int id;
     std::mutex mtx;
     std::condition_variable cv;
 
@@ -20,7 +20,8 @@ class Bed
         win_width = x_max/16;
     }
 
-    void init(){
+    void init(int _id){
+        id = _id;
         window = newwin(win_height, win_width, id < 5 ? 0 : win_height, id%5*win_width + 3./5*x_max);
         draw();
     }

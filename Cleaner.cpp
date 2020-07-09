@@ -12,7 +12,7 @@ class Cleaner
     Cleaner(int _id) : id(_id) {
         getmaxyx(stdscr, y_max, x_max);
         win_height = 3;
-        win_width = x_max/8;
+        win_width = x_max/6;
         statusWindow = newwin(win_height, win_width, (id+1)*3*win_height+y_max/6, 0);
         progresWindow = newwin(win_height, win_width, (id+1)*3*win_height+y_max/6, win_width);
 
