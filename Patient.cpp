@@ -9,9 +9,10 @@ class Patient
     std::string status;
     WINDOW* statusWindow;
     std::vector<Examination>& exams;
+    OperatingRoom& operating_room;
 
     public:
-    Patient(int _id, std::vector<Examination>& _exams) : id(_id), exams(_exams) {
+    Patient(int _id, std::vector<Examination>& _exams, OperatingRoom& _operating_room) : id(_id), exams(_exams), operating_room(_operating_room) {
         status = "Waiting for registration";
 
         getmaxyx(stdscr, y_max, x_max);
@@ -99,10 +100,31 @@ class Patient
         changeStatus("End");
     }
 
+    void undergo_surgery(){
+        changeStatus("Waiting in queue for surgery");
+
+        std::unique_lock<std::mutex> ul(operating_room.pat_mtx);
+        operating_room.cv.wait(ul, [this]{return !operating_room.is_patient_in.load() && operating_room.is_doctor_in.load();});
+        operating_room.is_patient_in.store(true);
+        operating_room.patient_id = id;
+        operating_room.cv.notify_one();
+        operating_room.print_info_about_sim();
+
+        // changeStatus("Waiting for doc to begin surgery");
+        // operating_room.cv.wait(ul, [this]{return operating_room.is_doctor_in.load();});
+
+        changeStatus("Undergoing surgery");
+        operating_room.cv.wait(ul, [this]{return operating_room.is_surgery_finished.load();});
+        operating_room.is_patient_in.store(false);
+        operating_room.is_surgery_finished.store(false);
+        operating_room.print_info_about_sim();
+        changeStatus("Surgery completed");
+    }
+
     void treatment(Reception& reception){
         registration(reception);
         go_for_exam();
-        // operation
+        undergo_surgery();
         // rehabilitation
         // discharging
     }

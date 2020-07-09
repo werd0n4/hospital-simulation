@@ -79,7 +79,7 @@ int main()
         doctors.push_back(Doctor{i, examinations, operatingRoom});
     }
     for(int i = 0; i < 21; ++i){
-        patients.push_back(Patient{i, examinations});
+        patients.push_back(Patient{i, examinations, operatingRoom});
     }
 
     //threads initialization
