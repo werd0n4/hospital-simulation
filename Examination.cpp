@@ -9,9 +9,9 @@ class Examination
 
     public:
     int id, patient_id, doctor_id;
-    std::atomic_bool isPatientIn;
-    std::atomic_bool isDoctorIn;
-    std::atomic_bool is_exam_finished;
+    bool isPatientIn;
+    bool isDoctorIn;
+    bool is_exam_finished;
     std::mutex mtx;
     std::condition_variable cv;
 

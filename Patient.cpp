@@ -74,23 +74,24 @@ class Patient
         changeStatus("Waiting for exam");
         while(!isInExamRoom){
             for(auto& exam : exams){
-                if(!exam.isPatientIn.load()){
+                if(!exam.isPatientIn){
                     std::lock_guard<std::mutex> lg(exam.mtx);
-                    exam.isPatientIn.store(true);
+                    exam.isPatientIn = true;
                     isInExamRoom = true;
                     exam.patient_id = id;
                     exam_id = exam.id;
+                    exam.cv.notify_one();
                     break;
                 }
             }
         }
         changeStatus("Waiting for doc in " + std::to_string(exam_id));
         std::unique_lock<std::mutex> ul(exams[exam_id].mtx);
-        exams[exam_id].cv.wait(ul, [&exams, exam_id]{return exams[exam_id].isDoctorIn.load();});
+        exams[exam_id].cv.wait(ul, [&exams, exam_id]{return exams[exam_id].isDoctorIn;});
 
         changeStatus("Undergoing exam in " + std::to_string(exam_id));
-        exams[exam_id].cv.wait(ul, [&exams, exam_id]{return exams[exam_id].is_exam_finished.load();});
-        exams[exam_id].isPatientIn.store(false);
+        exams[exam_id].cv.wait(ul, [&exams, exam_id]{return exams[exam_id].is_exam_finished;});
+        exams[exam_id].isPatientIn = false;
     }
 
     void treatment(Reception& reception, std::vector<Examination>& examinations){

@@ -86,12 +86,13 @@ class Doctor
         changeStatus("Waiting for exam room");
         while(!has_exam_room){
             for(auto& exam : exams){
-                if(!exam.isDoctorIn.load()){
+                if(!exam.isDoctorIn){
                     std::lock_guard<std::mutex> lg(exam.mtx);
-                    exam.isDoctorIn.store(true);
+                    exam.isDoctorIn = true;
                     has_exam_room = true;
                     exam.doctor_id = id;
                     exam_id = exam.id;
+                    exam.cv.notify_one();
                     break;
                 }
             }
@@ -99,8 +100,8 @@ class Doctor
 
         changeStatus("Waiting for patient");
         std::unique_lock<std::mutex> ul(exams[exam_id].mtx);
-        exams[exam_id].cv.wait(ul, [this, exam_id]{return exams[exam_id].isPatientIn.load();});
-        exams[exam_id].is_exam_finished.store(false);
+        exams[exam_id].cv.wait(ul, [this, exam_id]{return exams[exam_id].isPatientIn;});
+        exams[exam_id].is_exam_finished = false;
 
         changeStatus("Examing...");
         clear_progresWindow();
@@ -115,8 +116,8 @@ class Doctor
                 wrefresh(progresWindow);
             }
         }
-        exams[exam_id].is_exam_finished.store(true);
-        exams[exam_id].isDoctorIn.store(false);
+        exams[exam_id].is_exam_finished = true;
+        exams[exam_id].isDoctorIn = false;
         changeStatus("Idle");
         clear_progresWindow();
         exams[exam_id].draw();

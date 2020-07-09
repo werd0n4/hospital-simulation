@@ -40,7 +40,10 @@ class Bed
     void assignPatient(int patient_id){
         isOccupied = true;
         mvwprintw(window, 3, 3, "%d", patient_id);
-        wrefresh(window);
+        {
+            std::lock_guard<std::mutex> lg(refresh_mtx);
+            wrefresh(window);
+        }
     }
 
     bool getIsOccupied(){
