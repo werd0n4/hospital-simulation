@@ -79,49 +79,7 @@ class Doctor
     }
 
     void examine(){
-        bool has_exam_room = false;
-        bool temp;
-        int exam_id;
         
-        changeStatus("Waiting for exam room");
-        while(!has_exam_room){
-            for(auto& exam : exams){
-                if(!exam.isDoctorIn){
-                    std::lock_guard<std::mutex> lg(exam.mtx);
-                    exam.isDoctorIn = true;
-                    has_exam_room = true;
-                    exam.doctor_id = id;
-                    exam_id = exam.id;
-                    exam.cv.notify_one();
-                    break;
-                }
-            }
-        }
-
-        changeStatus("Waiting for patient");
-        std::unique_lock<std::mutex> ul(exams[exam_id].mtx);
-        exams[exam_id].cv.wait(ul, [this, exam_id]{return exams[exam_id].isPatientIn;});
-        exams[exam_id].is_exam_finished = false;
-
-        changeStatus("Examing...");
-        clear_progresWindow();
-        time = 10000 + rand()%1001;
-        time = time / (win_width-2);
-        exams[exam_id].print_info_about_sim();
-        for(int i = 1; i <= win_width-2; ++i){
-            std::this_thread::sleep_for(std::chrono::milliseconds(time));
-            {
-                std::lock_guard<std::mutex> refresh_guard(refresh_mtx);
-                mvwprintw(progresWindow, 1, i, "=");
-                wrefresh(progresWindow);
-            }
-        }
-        exams[exam_id].is_exam_finished = true;
-        exams[exam_id].isDoctorIn = false;
-        changeStatus("Idle");
-        clear_progresWindow();
-        exams[exam_id].draw();
-        exams[exam_id].cv.notify_one();
     }
 
     void on_duty(){

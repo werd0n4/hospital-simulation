@@ -79,13 +79,13 @@ int main()
         doctors.push_back(Doctor{i, examinations, operatingRoom});
     }
     for(int i = 0; i < 21; ++i){
-        patients.push_back(Patient{i});
+        patients.push_back(Patient{i, examinations});
     }
 
     //threads initialization
     std::thread userInput ([]{getUserInput();});
     for(auto& patient : patients){
-        patientThreads.push_back(std::thread([&patient, &reception, &examinations]{patient.treatment(reception, examinations);}));
+        patientThreads.push_back(std::thread([&patient, &reception, &examinations]{patient.treatment(reception);}));
     }
     for(auto& doctor : doctors){
         doctorThreads.push_back(std::thread([&doctor]{doctor.on_duty();}));

@@ -8,10 +8,11 @@ class Patient
     int y_max, x_max, win_height, win_width;
     std::string status;
     WINDOW* statusWindow;
+    std::vector<Examination>& exams;
 
     public:
-    Patient(int _id) : id(_id) {
-        status = "Waiting";
+    Patient(int _id, std::vector<Examination>& _exams) : id(_id), exams(_exams) {
+        status = "Waiting for registration";
 
         getmaxyx(stdscr, y_max, x_max);
         win_height = 3;
@@ -62,41 +63,18 @@ class Patient
         changeStatus("Registering");
         reception.registerPatient(id);
 
-        changeStatus("Waiting");
+        changeStatus("Going for examination");
         reception.setIsOccupied(false);
         reception.cv.notify_one();
     }
 
-    void go_for_exam(std::vector<Examination>& exams){
-        bool isInExamRoom = false;
-        int exam_id;
+    void go_for_exam(){
 
-        changeStatus("Waiting for exam");
-        while(!isInExamRoom){
-            for(auto& exam : exams){
-                if(!exam.isPatientIn){
-                    std::lock_guard<std::mutex> lg(exam.mtx);
-                    exam.isPatientIn = true;
-                    isInExamRoom = true;
-                    exam.patient_id = id;
-                    exam_id = exam.id;
-                    exam.cv.notify_one();
-                    break;
-                }
-            }
-        }
-        changeStatus("Waiting for doc in " + std::to_string(exam_id));
-        std::unique_lock<std::mutex> ul(exams[exam_id].mtx);
-        exams[exam_id].cv.wait(ul, [&exams, exam_id]{return exams[exam_id].isDoctorIn;});
-
-        changeStatus("Undergoing exam in " + std::to_string(exam_id));
-        exams[exam_id].cv.wait(ul, [&exams, exam_id]{return exams[exam_id].is_exam_finished;});
-        exams[exam_id].isPatientIn = false;
     }
 
-    void treatment(Reception& reception, std::vector<Examination>& examinations){
+    void treatment(Reception& reception){
         registration(reception);
-        go_for_exam(examinations);
+        go_for_exam();
         // operation
         // rehabilitation
         // discharging
