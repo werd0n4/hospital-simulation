@@ -9,9 +9,9 @@ class Examination
 
     public:
     int id, patient_id, doctor_id;
-    bool is_patient_in;
-    bool is_doctor_in;
-    bool is_exam_finished;
+    std::atomic<bool> is_patient_in;
+    std::atomic<bool> is_doctor_in;
+    std::atomic<bool> is_exam_finished;
     std::mutex mtx;
     std::condition_variable cv;
 
@@ -35,7 +35,6 @@ class Examination
         wattron(window, COLOR_PAIR(1));
         box(window, 0, 0);
         wattroff(window, COLOR_PAIR(1));
-        mvwprintw(window, 1, win_width/2 - 7, "Examination %d", id);
         {
             std::lock_guard<std::mutex> refresh_guard(refresh_mtx);
             wrefresh(window);
@@ -44,6 +43,7 @@ class Examination
 
     void print_info_about_sim(){
         clear_window();
+        mvwprintw(window, 1, win_width/2 - 7, "Examination %d", id);
         if(is_doctor_in)
             mvwprintw(window, 3, 1, "Doctor: %d", doctor_id);
         else

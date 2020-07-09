@@ -69,6 +69,29 @@ class Patient
     }
 
     void go_for_exam(){
+       bool room_found = false;
+       int room_id;
+       //find empty examination room
+        while(!room_found){
+            for(auto& exam : exams){
+                if(!exam.is_patient_in.load()){
+                    exam.is_patient_in.store(true);
+                    exam.patient_id = id;
+                    room_id = exam.id;
+                    room_found = true;
+                    exam.print_info_about_sim();
+                    break;
+                }
+            } 
+        }
+
+        changeStatus("In room "+std::to_string(room_id));
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+        
+        exams[room_id].is_patient_in.store(false);
+        exams[room_id].print_info_about_sim();
+        
+        changeStatus("End");
 
     }
 

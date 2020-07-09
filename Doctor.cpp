@@ -79,7 +79,29 @@ class Doctor
     }
 
     void examine(){
+       bool room_found = false;
+       int room_id;
+       //find empty examination room
+        while(!room_found){
+            for(auto& exam : exams){
+                if(!exam.is_doctor_in.load()){
+                    exam.is_doctor_in.store(true);
+                    exam.doctor_id = id;
+                    room_id = exam.id;
+                    room_found = true;
+                    exam.print_info_about_sim();
+                    break;
+                }
+            } 
+        }
+
+        changeStatus("Waiting for patient in room "+std::to_string(room_id));
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
         
+        exams[room_id].is_doctor_in.store(false);
+        exams[room_id].print_info_about_sim();
+        
+        changeStatus("End");
     }
 
     void on_duty(){
