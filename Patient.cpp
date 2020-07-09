@@ -72,10 +72,12 @@ class Patient
        bool room_found = false;
        int room_id;
        //find empty examination room
+        changeStatus("Waiting for room");
         while(!room_found){
             for(auto& exam : exams){
                 if(!exam.is_patient_in.load()){
                     exam.is_patient_in.store(true);
+                    exam.cv.notify_one();
                     exam.patient_id = id;
                     room_id = exam.id;
                     room_found = true;
@@ -86,13 +88,12 @@ class Patient
         }
 
         changeStatus("In room "+std::to_string(room_id));
-        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-        
+        std::unique_lock<std::mutex> ul(exams[room_id].pat_mtx);
+        exams[room_id].cv.wait(ul, [this, room_id]{return exams[room_id].is_exam_finished.load();});
+        exams[room_id].is_exam_finished.store(false);
         exams[room_id].is_patient_in.store(false);
         exams[room_id].print_info_about_sim();
-        
         changeStatus("End");
-
     }
 
     void treatment(Reception& reception){

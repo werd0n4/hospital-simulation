@@ -12,7 +12,8 @@ class Examination
     std::atomic<bool> is_patient_in;
     std::atomic<bool> is_doctor_in;
     std::atomic<bool> is_exam_finished;
-    std::mutex mtx;
+    std::mutex pat_mtx;
+    std::mutex doc_mtx;
     std::condition_variable cv;
 
     Examination(){
