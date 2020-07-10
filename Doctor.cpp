@@ -141,7 +141,7 @@ class Doctor
 
         changeStatus("Operating patient");
         clear_progresWindow();
-        time = 5000 + rand()%1001;
+        time = 2000 + rand()%1001;
         time = time / (win_width-2);
         for(int i = 1; i <= win_width-2; ++i){
             std::this_thread::sleep_for(std::chrono::milliseconds(time));

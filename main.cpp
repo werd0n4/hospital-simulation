@@ -5,6 +5,7 @@
 #include <condition_variable>
 #include <ctime>
 #include <memory>
+#include <algorithm>
 
 #include "Cleaner.cpp"
 #include "OperatingRoom.cpp"

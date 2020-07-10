@@ -23,17 +23,30 @@ void Rehabilitation::clear_window(){
 
 void Rehabilitation::display_patients_list(){
     clear_window();
+    std::lock_guard<std::mutex> lg(refresh_mtx);
     for(int i = 0; i < patients.size(); ++i){
-        mvwprintw(window, 2 + i, 1, "%d ");
+        mvwprintw(window, 2 + i, 1, "%d: ", patients[i].id);
     }
-
-    {
-        std::lock_guard<std::mutex> lg(refresh_mtx);
-        wrefresh(window);
-    }
+    wrefresh(window);
 }
 
-void Rehabilitation::addPatient(Patient _patient){
+void Rehabilitation::add_patient(Patient _patient){
     patients.push_back(_patient);
     display_patients_list();
+}
+
+void Rehabilitation::display_patient_progress(Patient& patient, int time){
+        time = 2 * time / (win_width-2);
+        std::vector<Patient>::iterator it = std::find(patients.begin(), patients.end(), patient);
+        int index = std::distance(patients.begin(), it);
+        mvwprintw(window, 2 + index, 4, "|", patients[index].id);
+        mvwprintw(window, 2 + index, win_width/2 + 3, "|", patients[index].id);
+        for(int i = 1; i <= (win_width-4) / 2; ++i){
+            std::this_thread::sleep_for(std::chrono::milliseconds(time));
+            {
+                std::lock_guard<std::mutex> refresh_guard(refresh_mtx);
+                mvwprintw(window, 2+index, i+4, "=");
+                wrefresh(window);
+            }
+        }
 }

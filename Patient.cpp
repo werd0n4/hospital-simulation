@@ -101,9 +101,6 @@ void Patient::undergo_surgery(){
     operating_room.cv.notify_one();
     operating_room.print_info_about_sim();
 
-    // changeStatus("Waiting for doc to begin surgery");
-    // operating_room.cv.wait(ul, [this]{return operating_room.is_doctor_in.load();});
-
     changeStatus("Undergoing surgery");
     operating_room.cv.wait(ul, [this]{return operating_room.is_surgery_finished.load();});
     operating_room.is_patient_in.store(false);
@@ -114,7 +111,8 @@ void Patient::undergo_surgery(){
 
 void Patient::rehabilitation(){
     time = 2000 + rand()%2001;
-    rehab_room.addPatient(*this);
+    rehab_room.add_patient(*this);
+    rehab_room.display_patient_progress(*this, time);
 }
 
 void Patient::treatment(Reception& reception){
@@ -122,4 +120,10 @@ void Patient::treatment(Reception& reception){
     go_for_exam();
     undergo_surgery();
     rehabilitation();
+    //discharge();
+}
+
+bool Patient::operator==(const Patient& rhs)
+{
+    return this->id == rhs.id;
 }

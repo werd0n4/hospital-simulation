@@ -18,5 +18,7 @@ class Rehabilitation{
 
     void display_patients_list();
 
-    void addPatient(Patient _patient);
+    void add_patient(Patient);
+
+    void display_patient_progress(Patient&, int);
 };

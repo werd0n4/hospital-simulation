@@ -8,7 +8,7 @@ class Rehabilitation;
 
 class Patient{
     private:
-    int id, time;
+    int time;
     int y_max, x_max, win_height, win_width;
     std::string status;
     WINDOW* statusWindow;
@@ -17,6 +17,8 @@ class Patient{
     Rehabilitation& rehab_room;
 
     public:
+    int id;
+
     Patient(int _id, std::vector<Examination>& _exams, OperatingRoom& _operating_room, Rehabilitation& _rehab_room);
 
     void draw();
@@ -34,4 +36,6 @@ class Patient{
     void rehabilitation();
 
     void treatment(Reception& reception);
+
+    bool operator==(const Patient&);
 };
