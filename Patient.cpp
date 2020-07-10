@@ -71,7 +71,7 @@ void Patient::go_for_exam(){
                 std::lock_guard<std::mutex> lg(exam.pat_mtx);
                 if(!exam.is_patient_in.load()){
                     exam.is_patient_in.store(true);
-                    exam.cv.notify_one();
+                    exam.cv.notify_all();
                     exam.patient_id = id;
                     room_id = exam.id;
                     room_found = true;
@@ -97,8 +97,8 @@ void Patient::undergo_surgery(){
     std::unique_lock<std::mutex> ul(operating_room.pat_mtx);
     operating_room.cv.wait(ul, [this]{return !operating_room.is_patient_in.load() && operating_room.is_doctor_in.load();});
     operating_room.is_patient_in.store(true);
+    operating_room.cv.notify_all();
     operating_room.patient_id = id;
-    operating_room.cv.notify_one();
     operating_room.print_info_about_sim();
 
     changeStatus("Undergoing surgery");
@@ -115,12 +115,16 @@ void Patient::rehabilitation(){
     rehab_room.display_patient_progress(*this, time);
 }
 
+void Patient::discharge(){
+    
+}
+
 void Patient::treatment(Reception& reception){
     registration(reception);
     go_for_exam();
     undergo_surgery();
     rehabilitation();
-    //discharge();
+    discharge();
 }
 
 bool Patient::operator==(const Patient& rhs)

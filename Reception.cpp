@@ -73,6 +73,10 @@ class Reception
         draw();
     }
 
+    void discharge_patient(){
+        
+    }
+
     bool getIsOccupied(){
         return isOccupied;
     }

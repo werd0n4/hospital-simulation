@@ -35,6 +35,8 @@ class Patient{
 
     void rehabilitation();
 
+    void discharge();
+
     void treatment(Reception& reception);
 
     bool operator==(const Patient&);

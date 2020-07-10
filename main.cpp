@@ -9,12 +9,12 @@
 
 #include "Cleaner.cpp"
 #include "OperatingRoom.cpp"
-#include "Bed.cpp"
 #include "Reception.cpp"
 #include "Examination.cpp"
 #include "Rehabilitation.cpp"
 #include "Patient.cpp"
 #include "Doctor.cpp"
+#include "Bed.cpp"
 
 
 std::mutex refresh_mtx;

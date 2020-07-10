@@ -67,7 +67,8 @@ class Doctor
 
     void preparing(){
         changeStatus("Preparing");
-        time = 3000 + rand()%1001;
+        // time = 3000 + rand()%1001;
+        time = 3000;
         time = time / (win_width-2);
         for(int i = 1; i <= win_width-2; ++i){
             std::this_thread::sleep_for(std::chrono::milliseconds(time));
@@ -107,7 +108,8 @@ class Doctor
 
             changeStatus("Examing patient");
             clear_progresWindow();
-            time = 2000 + rand()%1001;
+            // time = 2000 + rand()%1001;
+            time = 2000;
             time = time / (win_width-2);
             for(int i = 1; i <= win_width-2; ++i){
                 std::this_thread::sleep_for(std::chrono::milliseconds(time));
@@ -119,7 +121,7 @@ class Doctor
             }
             
             exams[room_id].is_exam_finished.store(true);
-            exams[room_id].cv.notify_one();
+            exams[room_id].cv.notify_all();
             exams[room_id].print_info_about_sim();
         }
         exams[room_id].is_doctor_in.store(false);
@@ -133,7 +135,7 @@ class Doctor
         operating_room.cv.wait(ul, [this]{return !operating_room.is_doctor_in.load();});
         operating_room.is_doctor_in.store(true);
         operating_room.doctor_id = id;
-        operating_room.cv.notify_one();
+        operating_room.cv.notify_all();
         operating_room.print_info_about_sim();
 
         changeStatus("Waiting to begin surgery");
@@ -141,7 +143,8 @@ class Doctor
 
         changeStatus("Operating patient");
         clear_progresWindow();
-        time = 2000 + rand()%1001;
+        // time = 2000 + rand()%1001;
+        time = 2000;
         time = time / (win_width-2);
         for(int i = 1; i <= win_width-2; ++i){
             std::this_thread::sleep_for(std::chrono::milliseconds(time));
@@ -153,7 +156,7 @@ class Doctor
         }
         operating_room.is_surgery_finished.store(true);
         operating_room.is_doctor_in.store(false);
-        operating_room.cv.notify_one();
+        operating_room.cv.notify_all();
         operating_room.print_info_about_sim();
         changeStatus("Surgery ended");
     }
