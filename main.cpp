@@ -7,15 +7,14 @@
 #include <memory>
 #include <algorithm>
 
-#include "Cleaner.cpp"
-#include "OperatingRoom.cpp"
-#include "Reception.cpp"
-#include "Examination.cpp"
-#include "Rehabilitation.cpp"
 #include "Patient.cpp"
 #include "Doctor.cpp"
+#include "Cleaner.cpp"
 #include "Bed.cpp"
-
+#include "Examination.cpp"
+#include "OperatingRoom.cpp"
+#include "Reception.cpp"
+#include "Rehabilitation.cpp"
 
 std::mutex refresh_mtx;
 bool running;

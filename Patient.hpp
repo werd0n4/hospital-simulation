@@ -1,10 +1,14 @@
 #pragma once
 #include "Rehabilitation.hpp"
+#include "Examination.hpp"
+#include "Reception.hpp"
+#include "OperatingRoom.hpp"
 
 
 extern std::mutex refresh_mtx;
 extern bool running;
 class Rehabilitation;
+class Reception;
 
 class Patient{
     private:
