@@ -1,4 +1,5 @@
 extern std::mutex refresh_mtx;
+extern bool running;
 
 
 class Cleaner

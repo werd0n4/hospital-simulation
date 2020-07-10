@@ -10,8 +10,8 @@
 #include "OperatingRoom.cpp"
 #include "Bed.cpp"
 #include "Reception.cpp"
-#include "Rehabilitation.cpp"
 #include "Examination.cpp"
+#include "Rehabilitation.cpp"
 #include "Patient.cpp"
 #include "Doctor.cpp"
 
@@ -79,7 +79,7 @@ int main()
         doctors.push_back(Doctor{i, examinations, operatingRoom});
     }
     for(int i = 0; i < 21; ++i){
-        patients.push_back(Patient{i, examinations, operatingRoom});
+        patients.push_back(Patient{i, examinations, operatingRoom, rehabilitation});
     }
 
     //threads initialization
