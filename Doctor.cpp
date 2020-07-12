@@ -148,7 +148,9 @@ void Doctor::operate(){
 }
 
 void Doctor::on_duty(){
-    preparing();
-    examine(1);
-    operate();
+    while(running){
+        preparing();
+        examine(1);
+        operate();
+    }
 }

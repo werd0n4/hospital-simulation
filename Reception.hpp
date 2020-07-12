@@ -16,15 +16,17 @@ class Reception
 
     public:
     std::mutex mtx;
+    std::mutex discharge_mtx;
     std::condition_variable cv;
+    std::condition_variable discharge_cv;
 
     Reception(std::vector<Bed>&);
 
     void draw();
 
-    void registerPatient(int);
+    void register_patient(Patient);
 
-    void discharge_patient();
+    void discharge_patient(Patient);
 
     bool getIsOccupied();
 

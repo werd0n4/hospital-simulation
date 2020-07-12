@@ -62,11 +62,6 @@ int main()
     Reception reception{beds};
     Rehabilitation rehabilitation{};
     Cleaner cleaner{0};
-    // Coatroom coatroom{};
-    // Cafeteria cafeteria{};
-    // std::vector<Student> students;
-    // std::vector<Lecturer> lecturers;
-    // std::vector<Janitor> janitors;
 
     for(int i = 0; i < 2; ++i){
         examinations[i].init(i);
@@ -79,13 +74,13 @@ int main()
         doctors.push_back(Doctor{i, examinations, operatingRoom});
     }
     for(int i = 0; i < 21; ++i){
-        patients.push_back(Patient{i, examinations, operatingRoom, rehabilitation});
+        patients.push_back(Patient{i, examinations, operatingRoom, rehabilitation, reception});
     }
 
     //threads initialization
     std::thread userInput ([]{getUserInput();});
     for(auto& patient : patients){
-        patientThreads.push_back(std::thread([&patient, &reception, &examinations]{patient.treatment(reception);}));
+        patientThreads.push_back(std::thread([&patient, &examinations]{patient.treatment();}));
     }
     for(auto& doctor : doctors){
         doctorThreads.push_back(std::thread([&doctor]{doctor.on_duty();}));

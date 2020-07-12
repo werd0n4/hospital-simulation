@@ -19,11 +19,12 @@ class Patient{
     std::vector<Examination>& exams;
     OperatingRoom& operating_room;
     Rehabilitation& rehab_room;
+    Reception& reception;
 
     public:
     int id;
 
-    Patient(int _id, std::vector<Examination>& _exams, OperatingRoom& _operating_room, Rehabilitation& _rehab_room);
+    Patient(int _id, std::vector<Examination>&, OperatingRoom&, Rehabilitation&, Reception&);
 
     void draw();
 
@@ -31,7 +32,7 @@ class Patient{
 
     void changeStatus(std::string newStatus);
 
-    void registration(Reception& reception);
+    void registration();
 
     void go_for_exam();
 
@@ -41,7 +42,7 @@ class Patient{
 
     void discharge();
 
-    void treatment(Reception& reception);
+    void treatment();
 
     bool operator==(const Patient&);
 };

@@ -24,10 +24,10 @@ void Reception::draw(){
     }
 }
 
-void Reception::registerPatient(int patient_id){
+void Reception::register_patient(Patient patient){
     int time = registration_time + rand()%1001;
     time = time / (win_width-2);
-    mvwprintw(window, 3, 3, "Registering patient nr %d", patient_id);
+    mvwprintw(window, 3, 3, "Registering patient nr %d", patient.id);
     mvwprintw(window, 4, 3, "Waiting for free bed...");
     {
         std::lock_guard<std::mutex> refresh_guard(refresh_mtx);
@@ -39,7 +39,7 @@ void Reception::registerPatient(int patient_id){
         for(auto& bed : beds){
             std::lock_guard<std::mutex> lg(bed.mtx);
             if(!bed.getIsOccupied()){
-                bed.assignPatient(patient_id);
+                bed.assign_patient(patient);
                 bed_found = true;
                 break;
             }
@@ -47,7 +47,7 @@ void Reception::registerPatient(int patient_id){
     }
 
     draw();
-    mvwprintw(window, 3, 3, "Registering patient nr %d", patient_id);
+    mvwprintw(window, 3, 3, "Registering patient nr %d", patient.id);
     for(int i = 1; i <= win_width-2; ++i){
         std::this_thread::sleep_for(std::chrono::milliseconds(time));
         {
@@ -59,8 +59,13 @@ void Reception::registerPatient(int patient_id){
     draw();
 }
 
-void Reception::discharge_patient(){
-
+void Reception::discharge_patient(Patient patient){
+    for(Bed& bed : beds){
+        std::lock_guard<std::mutex> lg(bed.mtx);
+        if(bed.patient_id == patient.id){
+            bed.remove_patient();
+        }
+    }
 }
 
 bool Reception::getIsOccupied(){

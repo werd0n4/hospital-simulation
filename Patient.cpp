@@ -1,8 +1,8 @@
 #include "Patient.hpp"
 
 
-Patient::Patient(int _id, std::vector<Examination>& _exams, OperatingRoom& _operating_room, Rehabilitation& _rehab_room) 
-        : id(_id), exams(_exams), operating_room(_operating_room), rehab_room(_rehab_room) 
+Patient::Patient(int _id, std::vector<Examination>& _exams, OperatingRoom& _operating_room, Rehabilitation& _rehab_room, Reception& _reception) 
+        : id(_id), exams(_exams), operating_room(_operating_room), rehab_room(_rehab_room), reception(_reception) 
 {
     status = "Waiting for registration";
 
@@ -48,12 +48,12 @@ void Patient::changeStatus(std::string newStatus){
     }
 }
 
-void Patient::registration(Reception& reception){
+void Patient::registration(){
     std::unique_lock<std::mutex> ul(reception.mtx);
-    reception.cv.wait(ul, [&reception]{return !reception.getIsOccupied();});//wait unitl reception is free
+    reception.cv.wait(ul, [this]{return !reception.getIsOccupied();});//wait unitl reception is free
     reception.setIsOccupied(true);
     changeStatus("Registering");
-    reception.registerPatient(id);
+    reception.register_patient(*this);
 
     changeStatus("Going for examination");
     reception.setIsOccupied(false);
@@ -116,15 +116,20 @@ void Patient::rehabilitation(){
 }
 
 void Patient::discharge(){
-    
+    changeStatus("Discharging");
+    reception.discharge_patient(*this);
+    changeStatus("Out from hospital");
+    // std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 }
 
-void Patient::treatment(Reception& reception){
-    registration(reception);
-    go_for_exam();
-    undergo_surgery();
-    rehabilitation();
-    discharge();
+void Patient::treatment(){
+    // while(running){
+        registration();
+        go_for_exam();
+        undergo_surgery();
+        rehabilitation();
+        discharge();
+    // }
 }
 
 bool Patient::operator==(const Patient& rhs)

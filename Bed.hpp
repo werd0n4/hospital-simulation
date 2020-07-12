@@ -3,7 +3,7 @@
 
 
 extern std::mutex refresh_mtx;
-// class Patient;
+class Patient;
 
 class Bed{
     private:
@@ -11,11 +11,13 @@ class Bed{
     int id;
     std::atomic_bool isOccupied;
     WINDOW* window;
-    // Patient patient;
+    // std::unique_ptr<Patient> patient_ptr;
 
     public:
     std::mutex mtx;
+    std::mutex discharge_mtx;
     std::condition_variable cv;
+    int patient_id;
 
     Bed();
 
@@ -23,7 +25,11 @@ class Bed{
 
     void draw();
 
-    void assignPatient(int);
+    void assign_patient(Patient);
+
+    void remove_patient();
+
+    bool check_if_its_patient_bed(Patient);
 
     bool getIsOccupied();
 
