@@ -8,7 +8,7 @@ class Patient;
 class Rehabilitation{
     private:
     int y_max, x_max, win_height, win_width;
-    int patient_limit;
+    int patients_limit, patients_after_rehab;
     WINDOW* window;
     std::deque<Patient> patients;
 

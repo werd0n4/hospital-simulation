@@ -53,8 +53,7 @@ void Doctor::changeStatus(std::string newStatus){
 
 void Doctor::preparing(){
     changeStatus("Preparing");
-    // time = 3000 + rand()%1001;
-    time = 3000;
+    time = 3000 + rand()%1001;
     time = time / (win_width-2);
     for(int i = 1; i <= win_width-2; ++i){
         std::this_thread::sleep_for(std::chrono::milliseconds(time));
@@ -94,8 +93,7 @@ void Doctor::examine(int exam_quantity){
 
         changeStatus("Examing patient");
         clear_progresWindow();
-        // time = 2000 + rand()%1001;
-        time = 2000;
+        time = 2000 + rand()%1001;
         time = time / (win_width-2);
         for(int i = 1; i <= win_width-2; ++i){
             std::this_thread::sleep_for(std::chrono::milliseconds(time));
@@ -129,8 +127,7 @@ void Doctor::operate(){
 
     changeStatus("Operating patient");
     clear_progresWindow();
-    // time = 2000 + rand()%1001;
-    time = 2000;
+    time = 2000 + rand()%1001;
     time = time / (win_width-2);
     for(int i = 1; i <= win_width-2; ++i){
         std::this_thread::sleep_for(std::chrono::milliseconds(time));

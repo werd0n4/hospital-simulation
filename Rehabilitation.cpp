@@ -6,7 +6,8 @@ Rehabilitation::Rehabilitation(){
     win_height = y_max/4;
     win_width = x_max/3;
     window = newwin(win_height, win_width, y_max/4, 3./5*x_max);
-    patient_limit = 5;
+    patients_limit = 5;
+    patients_after_rehab = 0;
     empty_seats = true;
 
     clear_window();
@@ -38,13 +39,16 @@ void Rehabilitation::add_patient(Patient& _patient){
     cv.wait(ul, [this]{return empty_seats.load();});
     patients.push_back(_patient);
     display_patients_list();
-    if(patients.size() >= patient_limit)
+    if(patients.size() >= patients_limit)
         empty_seats = false;
 }
 
 void Rehabilitation::remove_patient(Patient& _patient){
-    patients.pop_front();
-    if(patients.size() == 0){
+    ++patients_after_rehab;
+    // patients.pop_front();
+    if(patients_after_rehab == patients_limit){
+        patients.clear();
+        patients_after_rehab = 0;
         clear_window();    
         display_patients_list();
         empty_seats.store(true);

@@ -49,6 +49,7 @@ void Patient::changeStatus(std::string newStatus){
 }
 
 void Patient::registration(){
+    changeStatus("Wait in queue to register");
     std::unique_lock<std::mutex> ul(reception.mtx);
     reception.cv.wait(ul, [this]{return !reception.getIsOccupied();});//wait unitl reception is free
     reception.setIsOccupied(true);
@@ -110,7 +111,7 @@ void Patient::undergo_surgery(){
 }
 
 void Patient::rehabilitation(){
-    time = 10000 + rand()%2001;
+    time = 4000 + rand()%2001;
 
     changeStatus("Waiting for rehabilitation");
     rehab_room.add_patient(*this);
@@ -123,17 +124,17 @@ void Patient::discharge(){
     changeStatus("Discharging");
     reception.discharge_patient(*this);
     changeStatus("Out from hospital");
-    // std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(2500 + rand()%501));
 }
 
 void Patient::treatment(){
-    // while(running){
+    while(running){
         registration();
         go_for_exam();
         undergo_surgery();
         rehabilitation();
         discharge();
-    // }
+    }
 }
 
 bool Patient::operator==(const Patient& rhs)
