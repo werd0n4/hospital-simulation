@@ -110,9 +110,13 @@ void Patient::undergo_surgery(){
 }
 
 void Patient::rehabilitation(){
-    time = 2000 + rand()%2001;
+    time = 10000 + rand()%2001;
+
+    changeStatus("Waiting for rehabilitation");
     rehab_room.add_patient(*this);
+    changeStatus("Rehabilitating");
     rehab_room.display_patient_progress(*this, time);
+    rehab_room.cv.notify_one();
 }
 
 void Patient::discharge(){
@@ -136,3 +140,19 @@ bool Patient::operator==(const Patient& rhs)
 {
     return this->id == rhs.id;
 }
+
+// void Patient::operator=(Patient& pat)
+// {
+//     this->time = pat.time;
+//     this->y_max = pat.y_max;
+//     this->x_max = pat.x_max;
+//     this->win_height = pat.win_height;
+//     this->win_width = pat.win_width;
+//     this->status = pat.status;
+//     this->statusWindow = pat.statusWindow;
+//     this->exams = pat.exams;
+//     this->operating_room = pat.operating_room;
+//     this->rehab_room = pat.operating_room;
+//     this->reception = pat.reception;
+//     this->id = pat.id;
+// }

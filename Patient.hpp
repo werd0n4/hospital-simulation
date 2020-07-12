@@ -45,4 +45,6 @@ class Patient{
     void treatment();
 
     bool operator==(const Patient&);
+
+    void operator=(Patient&);
 };

@@ -6,6 +6,7 @@
 #include <ctime>
 #include <memory>
 #include <algorithm>
+#include <deque>
 
 #include "Patient.cpp"
 #include "Doctor.cpp"
