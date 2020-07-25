@@ -4,7 +4,10 @@ extern std::mutex refresh_mtx;
 
 class OperatingRoom{
     private:
-    int y_max, x_max, win_height, win_width;
+    const int y_max = getmaxy(stdscr);
+    const int x_max = getmaxx(stdscr);
+    const int win_height = y_max/6;
+    const int win_width = x_max/5;
     WINDOW* window;
 
     public:

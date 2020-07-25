@@ -1,12 +1,9 @@
 #include "Reception.hpp"
 
 Reception::Reception(std::vector<Bed>& _beds) : beds(_beds) {
-    isOccupied = false;
+    is_occupied.store(false);
     registration_time = 1000;
 
-    getmaxyx(stdscr, y_max, x_max);
-    win_height = y_max/6;
-    win_width = x_max/5;
     window = newwin(win_height, win_width, win_height, x_max*0.4);
 
     draw();
@@ -18,13 +15,12 @@ void Reception::draw(){
     box(window, 0, 0);
     wattroff(window, COLOR_PAIR(green));
     mvwprintw(window, 1, win_width/2 - 5, "Reception");
-    {
-        std::lock_guard<std::mutex> lg(refresh_mtx);
-        wrefresh(window);
-    }
+    
+    std::lock_guard<std::mutex> lg(refresh_mtx);
+    wrefresh(window);
 }
 
-void Reception::register_patient(Patient patient){
+void Reception::register_patient(const Patient& patient){
     int time = registration_time + rand()%1001;
     time = time / (win_width-2);
     mvwprintw(window, 3, 3, "Registering patient nr %d", patient.id);
@@ -59,7 +55,7 @@ void Reception::register_patient(Patient patient){
     draw();
 }
 
-void Reception::discharge_patient(Patient patient){
+void Reception::discharge_patient(const Patient& patient){
     for(Bed& bed : beds){
         std::lock_guard<std::mutex> lg(bed.mtx);
         if(bed.patient_id == patient.id){
@@ -68,10 +64,10 @@ void Reception::discharge_patient(Patient patient){
     }
 }
 
-bool Reception::getIsOccupied(){
-    return isOccupied;
+bool Reception::get_is_occupied(){
+    return is_occupied;
 }
 
-void Reception::setIsOccupied(bool x){
-    isOccupied = x;
+void Reception::set_is_occupied(bool x){
+    is_occupied.store(x);
 }

@@ -9,9 +9,12 @@ class Reception
 {
     private:
     WINDOW* window;
-    int y_max, x_max, win_height, win_width;
+    const int y_max = getmaxy(stdscr);
+    const int x_max = getmaxx(stdscr);
+    const int win_height = y_max/6;
+    const int win_width = x_max/5;
     int registration_time;
-    std::atomic_bool isOccupied;
+    std::atomic_bool is_occupied;
     std::vector<Bed>& beds;
 
     public:
@@ -24,11 +27,11 @@ class Reception
 
     void draw();
 
-    void register_patient(Patient);
+    void register_patient(const Patient&);
 
-    void discharge_patient(Patient);
+    void discharge_patient(const Patient&);
 
-    bool getIsOccupied();
+    bool get_is_occupied();
 
-    void setIsOccupied(bool);
+    void set_is_occupied(bool);
 };

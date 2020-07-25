@@ -13,9 +13,12 @@ class Reception;
 class Patient{
     private:
     int time;
-    int y_max, x_max, win_height, win_width;
+    const int y_max = getmaxy(stdscr);
+    const int x_max = getmaxx(stdscr);
+    const int win_height = 3;
+    const int win_width = x_max/4;
     std::string status;
-    WINDOW* statusWindow;
+    WINDOW* status_window;
     std::vector<Examination>& exams;
     OperatingRoom& operating_room;
     Rehabilitation& rehab_room;
@@ -30,7 +33,7 @@ class Patient{
 
     void clear_status_window();
 
-    void changeStatus(std::string newStatus);
+    void change_status(const std::string&);
 
     void registration();
 
@@ -45,6 +48,4 @@ class Patient{
     void treatment();
 
     bool operator==(const Patient&);
-
-    void operator=(Patient&);
 };
