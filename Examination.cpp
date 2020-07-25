@@ -17,9 +17,9 @@ void Examination::init(int _id){
 
 void Examination::clear_window(){
     werase(window);
-    wattron(window, COLOR_PAIR(1));
+    wattron(window, COLOR_PAIR(green));
     box(window, 0, 0);
-    wattroff(window, COLOR_PAIR(1));
+    wattroff(window, COLOR_PAIR(green));
     {
         std::lock_guard<std::mutex> refresh_guard(refresh_mtx);
         wrefresh(window);

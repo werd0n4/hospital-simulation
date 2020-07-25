@@ -15,9 +15,9 @@ Rehabilitation::Rehabilitation(){
 
 void Rehabilitation::clear_window(){
     werase(window);
-    wattron(window, COLOR_PAIR(3));
+    wattron(window, COLOR_PAIR(yellow));
     box(window, 0, 0);
-    wattroff(window, COLOR_PAIR(3));
+    wattroff(window, COLOR_PAIR(yellow));
     mvwprintw(window, 1, win_width/2 - 14, "Patients on rehabilitation:");
     {
         std::lock_guard<std::mutex> lg(refresh_mtx);

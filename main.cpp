@@ -8,9 +8,10 @@
 #include <algorithm>
 #include <deque>
 
+enum { green = 1, red, yellow, cyan, white, blue, magenta };
+
 #include "Patient.cpp"
 #include "Doctor.cpp"
-#include "Cleaner.cpp"
 #include "Bed.cpp"
 #include "Examination.cpp"
 #include "OperatingRoom.cpp"
@@ -23,16 +24,15 @@ bool running;
 void init_screen(){
     initscr();   
     curs_set(0);
-    //colors
+    //colors definition 
     start_color();
-    // init_color(COLOR_YELLOW, 800, 800, 0);
-    init_pair(1, COLOR_GREEN, COLOR_BLACK);//
-    init_pair(2, COLOR_RED, COLOR_BLACK);//
-    init_pair(3, COLOR_YELLOW, COLOR_BLACK);//
-    init_pair(4, COLOR_CYAN, COLOR_BLACK);//frames default
-    init_pair(5, COLOR_WHITE, COLOR_BLACK);//
-    init_pair(6, COLOR_BLUE, COLOR_BLACK);//
-    init_pair(7, COLOR_MAGENTA, COLOR_BLACK);//
+    init_pair(green, COLOR_GREEN, COLOR_BLACK);
+    init_pair(red, COLOR_RED, COLOR_BLACK);
+    init_pair(yellow, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(cyan, COLOR_CYAN, COLOR_BLACK);
+    init_pair(white, COLOR_WHITE, COLOR_BLACK);
+    init_pair(blue, COLOR_BLUE, COLOR_BLACK);
+    init_pair(magenta, COLOR_MAGENTA, COLOR_BLACK);
 }
 
 void getUserInput(){
@@ -62,7 +62,6 @@ int main()
     OperatingRoom operatingRoom{};
     Reception reception{beds};
     Rehabilitation rehabilitation{};
-    Cleaner cleaner{0};
 
     for(int i = 0; i < 2; ++i){
         examinations[i].init(i);
@@ -86,7 +85,6 @@ int main()
     for(auto& doctor : doctors){
         doctorThreads.push_back(std::thread([&doctor]{doctor.on_duty();}));
     }
-    std::thread cleanerThread([&cleaner]{cleaner.keep_clean();});
 
     userInput.join();
     for(auto& thread : patientThreads){
@@ -95,7 +93,6 @@ int main()
     for(auto& thread : doctorThreads){
         thread.join();
     }
-    cleanerThread.join();
 
     endwin();
     return 0;

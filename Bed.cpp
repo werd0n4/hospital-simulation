@@ -17,9 +17,9 @@ void Bed::init(int _id){
 
 void Bed::draw(){
     werase(window);
-    wattron(window, COLOR_PAIR(1));
+    wattron(window, COLOR_PAIR(green));
     box(window, 0, 0);
-    wattroff(window, COLOR_PAIR(1));
+    wattroff(window, COLOR_PAIR(green));
     mvwprintw(window, 1, win_width/2 - 3, "Bed %d", id);
     {
         std::lock_guard<std::mutex> lg(refresh_mtx);

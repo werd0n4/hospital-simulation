@@ -12,12 +12,12 @@ Doctor::Doctor(int _id, std::vector<Examination>& _exams, OperatingRoom& _operat
 }
 
 void Doctor::draw(){
-    wattron(statusWindow, COLOR_PAIR(2));
-    wattron(progresWindow, COLOR_PAIR(2));
+    wattron(statusWindow, COLOR_PAIR(red));
+    wattron(progresWindow, COLOR_PAIR(red));
     box(statusWindow, 0, 0);
     box(progresWindow, 0, 0);
-    wattroff(statusWindow, COLOR_PAIR(2));
-    wattroff(progresWindow, COLOR_PAIR(2));
+    wattroff(statusWindow, COLOR_PAIR(red));
+    wattroff(progresWindow, COLOR_PAIR(red));
     mvwprintw(statusWindow, 1, 1, "Doc nr %d: %s", id, status.c_str());
     {
         std::lock_guard<std::mutex> lg(refresh_mtx);
@@ -28,9 +28,9 @@ void Doctor::draw(){
 
 void Doctor::clear_progresWindow(){
     werase(progresWindow);
-    wattron(progresWindow, COLOR_PAIR(2));
+    wattron(progresWindow, COLOR_PAIR(red));
     box(progresWindow, 0, 0);
-    wattroff(progresWindow, COLOR_PAIR(2));
+    wattroff(progresWindow, COLOR_PAIR(red));
     wmove(progresWindow, 1, 1);
     {
         std::lock_guard<std::mutex> lg(refresh_mtx);
@@ -41,9 +41,9 @@ void Doctor::clear_progresWindow(){
 void Doctor::changeStatus(std::string newStatus){
     werase(statusWindow);
     status = newStatus;
-    wattron(statusWindow, COLOR_PAIR(2));
+    wattron(statusWindow, COLOR_PAIR(red));
     box(statusWindow, 0, 0);
-    wattroff(statusWindow, COLOR_PAIR(2));
+    wattroff(statusWindow, COLOR_PAIR(red));
     mvwprintw(statusWindow, 1, 1, "Doc nr %d: %s", id, status.c_str());
     {
         std::lock_guard<std::mutex> lg(refresh_mtx);

@@ -10,16 +10,16 @@ Patient::Patient(int _id, std::vector<Examination>& _exams, OperatingRoom& _oper
     win_height = 3;
     win_width = x_max/4;
 
-    statusWindow = newwin(win_height, win_width, y_max*.6 + (id%7)*win_height, id/7*(win_width));
+    statusWindow = newwin(win_height, win_width, y_max*.5 + (id%7)*win_height, id/7*(win_width));
 
     draw();
 }
 
 void Patient::draw(){
     werase(statusWindow);
-    wattron(statusWindow, COLOR_PAIR(6));
+    wattron(statusWindow, COLOR_PAIR(blue));
     box(statusWindow, 0, 0);
-    wattroff(statusWindow, COLOR_PAIR(6));
+    wattroff(statusWindow, COLOR_PAIR(blue));
     mvwprintw(statusWindow, 1, 1, "Patient %d: %s", id, status.c_str());
     {
         std::lock_guard<std::mutex>lg(refresh_mtx);
@@ -29,9 +29,9 @@ void Patient::draw(){
 
 void Patient::clear_status_window(){
     werase(statusWindow);
-    wattron(statusWindow, COLOR_PAIR(6));
+    wattron(statusWindow, COLOR_PAIR(blue));
     box(statusWindow, 0, 0);
-    wattroff(statusWindow, COLOR_PAIR(6));
+    wattroff(statusWindow, COLOR_PAIR(blue));
     {
         std::lock_guard<std::mutex>lg(refresh_mtx);
         wrefresh(statusWindow);
@@ -141,19 +141,3 @@ bool Patient::operator==(const Patient& rhs)
 {
     return this->id == rhs.id;
 }
-
-// void Patient::operator=(Patient& pat)
-// {
-//     this->time = pat.time;
-//     this->y_max = pat.y_max;
-//     this->x_max = pat.x_max;
-//     this->win_height = pat.win_height;
-//     this->win_width = pat.win_width;
-//     this->status = pat.status;
-//     this->statusWindow = pat.statusWindow;
-//     this->exams = pat.exams;
-//     this->operating_room = pat.operating_room;
-//     this->rehab_room = pat.operating_room;
-//     this->reception = pat.reception;
-//     this->id = pat.id;
-// }
