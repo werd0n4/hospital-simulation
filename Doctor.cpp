@@ -1,66 +1,63 @@
 #include "Doctor.hpp"
 
 Doctor::Doctor(int _id, std::vector<Examination>& _exams, OperatingRoom& _operating_room) : id(_id), exams(_exams), operating_room(_operating_room) {
-    getmaxyx(stdscr, y_max, x_max);
-    win_height = 3;
-    win_width = x_max/5;
-    statusWindow = newwin(win_height, win_width, id*win_height+y_max/6, 0);
-    progresWindow = newwin(win_height, win_width, id*win_height+y_max/6, win_width);
+    status_window = newwin(win_height, win_width, id*win_height+y_max/6, 0);
+    progres_window = newwin(win_height, win_width, id*win_height+y_max/6, win_width);
     status = "Idle";
 
     draw();
 }
 
 void Doctor::draw(){
-    wattron(statusWindow, COLOR_PAIR(red));
-    wattron(progresWindow, COLOR_PAIR(red));
-    box(statusWindow, 0, 0);
-    box(progresWindow, 0, 0);
-    wattroff(statusWindow, COLOR_PAIR(red));
-    wattroff(progresWindow, COLOR_PAIR(red));
-    mvwprintw(statusWindow, 1, 1, "Doc nr %d: %s", id, status.c_str());
+    wattron(status_window, COLOR_PAIR(red));
+    wattron(progres_window, COLOR_PAIR(red));
+    box(status_window, 0, 0);
+    box(progres_window, 0, 0);
+    wattroff(status_window, COLOR_PAIR(red));
+    wattroff(progres_window, COLOR_PAIR(red));
+    mvwprintw(status_window, 1, 1, "Doc nr %d: %s", id, status.c_str());
     {
         std::lock_guard<std::mutex> lg(refresh_mtx);
-        wrefresh(statusWindow);
-        wrefresh(progresWindow);
+        wrefresh(status_window);
+        wrefresh(progres_window);
     }
 }
 
-void Doctor::clear_progresWindow(){
-    werase(progresWindow);
-    wattron(progresWindow, COLOR_PAIR(red));
-    box(progresWindow, 0, 0);
-    wattroff(progresWindow, COLOR_PAIR(red));
-    wmove(progresWindow, 1, 1);
+void Doctor::clear_progres_window(){
+    werase(progres_window);
+    wattron(progres_window, COLOR_PAIR(red));
+    box(progres_window, 0, 0);
+    wattroff(progres_window, COLOR_PAIR(red));
+    wmove(progres_window, 1, 1);
     {
         std::lock_guard<std::mutex> lg(refresh_mtx);
-        wrefresh(progresWindow);
+        wrefresh(progres_window);
     }
 }
 
-void Doctor::changeStatus(std::string newStatus){
-    werase(statusWindow);
-    status = newStatus;
-    wattron(statusWindow, COLOR_PAIR(red));
-    box(statusWindow, 0, 0);
-    wattroff(statusWindow, COLOR_PAIR(red));
-    mvwprintw(statusWindow, 1, 1, "Doc nr %d: %s", id, status.c_str());
+void Doctor::change_status(const std::string& new_status){
+    werase(status_window);
+    status = new_status;
+    wattron(status_window, COLOR_PAIR(red));
+    box(status_window, 0, 0);
+    wattroff(status_window, COLOR_PAIR(red));
+    mvwprintw(status_window, 1, 1, "Doc nr %d: %s", id, status.c_str());
     {
         std::lock_guard<std::mutex> lg(refresh_mtx);
-        wrefresh(statusWindow);
+        wrefresh(status_window);
     }
 }
 
 void Doctor::preparing(){
-    changeStatus("Preparing");
+    change_status("Preparing");
     time = 3000 + rand()%1001;
     time = time / (win_width-2);
     for(int i = 1; i <= win_width-2; ++i){
         std::this_thread::sleep_for(std::chrono::milliseconds(time));
         {
             std::lock_guard<std::mutex> refresh_guard(refresh_mtx);
-            mvwprintw(progresWindow, 1, i, "=");
-            wrefresh(progresWindow);
+            mvwprintw(progres_window, 1, i, "=");
+            wrefresh(progres_window);
         }
     }
 }
@@ -69,7 +66,7 @@ void Doctor::examine(int exam_quantity){
     bool room_found = false;
     int room_id;
     //find empty examination room
-    changeStatus("Waiting for exam room");
+    change_status("Waiting for exam room");
     while(!room_found){
         for(auto& exam : exams){
             {
@@ -87,20 +84,20 @@ void Doctor::examine(int exam_quantity){
     }
 
     for(int i = 0; i < exam_quantity; ++i){
-        changeStatus("Waiting for patient in "+std::to_string(room_id));
+        change_status("Waiting for patient in "+std::to_string(room_id));
         std::unique_lock<std::mutex> ul(exams[room_id].doc_mtx);
         exams[room_id].cv.wait(ul, [this, room_id]{return exams[room_id].is_patient_in.load();});
 
-        changeStatus("Examing patient");
-        clear_progresWindow();
+        change_status("Examing patient");
+        clear_progres_window();
         time = 2000 + rand()%1001;
         time = time / (win_width-2);
         for(int i = 1; i <= win_width-2; ++i){
             std::this_thread::sleep_for(std::chrono::milliseconds(time));
             {
                 std::lock_guard<std::mutex> refresh_guard(refresh_mtx);
-                mvwprintw(progresWindow, 1, i, "=");
-                wrefresh(progresWindow);
+                mvwprintw(progres_window, 1, i, "=");
+                wrefresh(progres_window);
             }
         }
         
@@ -109,11 +106,11 @@ void Doctor::examine(int exam_quantity){
         exams[room_id].print_info_about_sim();
     }
     exams[room_id].is_doctor_in.store(false);
-    changeStatus("End examinations");
+    change_status("End examinations");
 }
 
 void Doctor::operate(){
-    changeStatus("Waiting for operating room");
+    change_status("Waiting for operating room");
 
     std::unique_lock<std::mutex> ul(operating_room.doc_mtx);
     operating_room.cv.wait(ul, [this]{return !operating_room.is_doctor_in.load();});
@@ -122,26 +119,26 @@ void Doctor::operate(){
     operating_room.cv.notify_all();
     operating_room.print_info_about_sim();
 
-    changeStatus("Waiting to begin surgery");
+    change_status("Waiting to begin surgery");
     operating_room.cv.wait(ul, [this]{return operating_room.is_patient_in.load();});
 
-    changeStatus("Operating patient");
-    clear_progresWindow();
+    change_status("Operating patient");
+    clear_progres_window();
     time = 2000 + rand()%1001;
     time = time / (win_width-2);
     for(int i = 1; i <= win_width-2; ++i){
         std::this_thread::sleep_for(std::chrono::milliseconds(time));
         {
             std::lock_guard<std::mutex> refresh_guard(refresh_mtx);
-            mvwprintw(progresWindow, 1, i, "=");
-            wrefresh(progresWindow);
+            mvwprintw(progres_window, 1, i, "=");
+            wrefresh(progres_window);
         }
     }
     operating_room.is_surgery_finished.store(true);
     operating_room.is_doctor_in.store(false);
     operating_room.cv.notify_all();
     operating_room.print_info_about_sim();
-    changeStatus("Surgery ended");
+    change_status("Surgery ended");
 }
 
 void Doctor::on_duty(){

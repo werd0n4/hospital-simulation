@@ -38,7 +38,7 @@ void Reception::register_patient(Patient patient){
     while(!bed_found){
         for(auto& bed : beds){
             std::lock_guard<std::mutex> lg(bed.mtx);
-            if(!bed.getIsOccupied()){
+            if(!bed.get_is_occupied()){
                 bed.assign_patient(patient);
                 bed_found = true;
                 break;

@@ -7,11 +7,13 @@ class Patient;
 
 class Bed{
     private:
-    int y_max, x_max, win_height, win_width;
+    const int y_max = getmaxy(stdscr);
+    const int x_max = getmaxx(stdscr);
+    const int win_height = y_max/8;
+    const int win_width = x_max/16;
     int id;
-    std::atomic_bool isOccupied;
+    std::atomic_bool is_occupied;
     WINDOW* window;
-    // std::unique_ptr<Patient> patient_ptr;
 
     public:
     std::mutex mtx;
@@ -25,13 +27,11 @@ class Bed{
 
     void draw();
 
-    void assign_patient(Patient);
+    void assign_patient(const Patient&);
 
     void remove_patient();
 
-    bool check_if_its_patient_bed(Patient);
+    bool get_is_occupied();
 
-    bool getIsOccupied();
-
-    void setIsOccupied(bool);
+    void set_is_occupied(bool);
 };
