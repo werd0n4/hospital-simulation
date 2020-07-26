@@ -19,13 +19,14 @@ class Reception
 
     public:
     std::mutex mtx;
+    std::mutex release_bed_mtx;
     std::mutex discharge_mtx;
     std::condition_variable cv;
     std::condition_variable discharge_cv;
 
     Reception(std::vector<Bed>&);
 
-    void draw();
+    void draw_window();
 
     void register_patient(const Patient&);
 

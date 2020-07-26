@@ -6,10 +6,10 @@ Reception::Reception(std::vector<Bed>& _beds) : beds(_beds) {
 
     window = newwin(win_height, win_width, win_height, x_max*0.4);
 
-    draw();
+    draw_window();
 }
 
-void Reception::draw(){
+void Reception::draw_window(){
     werase(window);
     wattron(window, COLOR_PAIR(green));
     box(window, 0, 0);
@@ -40,9 +40,13 @@ void Reception::register_patient(const Patient& patient){
                 break;
             }
         }
+        if(!bed_found){
+            std::unique_lock<std::mutex> ul(release_bed_mtx);
+            cv.wait(ul);
+        }
     }
 
-    draw();
+    draw_window();
     mvwprintw(window, 3, 3, "Registering patient nr %d", patient.id);
     for(int i = 1; i <= win_width-2; ++i){
         std::this_thread::sleep_for(std::chrono::milliseconds(time));
@@ -52,7 +56,7 @@ void Reception::register_patient(const Patient& patient){
             wrefresh(window);
         }
     }
-    draw();
+    draw_window();
 }
 
 void Reception::discharge_patient(const Patient& patient){
@@ -60,6 +64,7 @@ void Reception::discharge_patient(const Patient& patient){
         std::lock_guard<std::mutex> lg(bed.mtx);
         if(bed.patient_id == patient.id){
             bed.remove_patient();
+            cv.notify_one();
         }
     }
 }
