@@ -37,5 +37,5 @@ class Rehabilitation{
 
     void rehab_patient(Patient&, const int);
 
-    void remove_patient(std::unique_ptr<RehabRoom>&);
+    void remove_patient(std::vector<RehabRoom>::iterator&);
 };

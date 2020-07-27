@@ -20,25 +20,19 @@ Rehabilitation::Rehabilitation(){
 }
 
 void Rehabilitation::rehab_patient(Patient& patient, const int time){
-    bool found_room = false;
-    std::unique_ptr<RehabRoom> room_found;
+    int index;
+    std::vector<RehabRoom>::iterator room_found;
 
     patient.change_status("Waiting for rehabilitation");
-    while(!found_room){
-        for(auto& rehab_room : rehab_rooms){
-            std::lock_guard<std::mutex> lg(change_room_status_mtx);
-            if(!rehab_room.is_occupied){
-                rehab_room.is_occupied = true;
-                room_found = std::make_unique<RehabRoom>(rehab_room);
-                found_room = true;
-                break;
-            }
-        }
-        if(!found_room){
-                patient.change_status("XXXXXX");
+    while(true){
+        std::lock_guard<std::mutex> lg(change_room_status_mtx);
+        room_found = std::find_if(rehab_rooms.begin(), rehab_rooms.end(), [](RehabRoom& rehab_room){return !rehab_room.is_occupied;});
+        if(room_found == rehab_rooms.end()){
             std::unique_lock<std::mutex> ul(waiting_for_room_mtx);
             cv.wait(ul);
-                patient.change_status("XXXXX---2");
+        }else{
+            room_found->is_occupied = true;
+            break;
         }
     }
 
@@ -70,14 +64,14 @@ void Rehabilitation::display_patient_progress(WINDOW* window, const int time){
     }
 }
 
-void Rehabilitation::remove_patient(std::unique_ptr<RehabRoom>& room_found){
+void Rehabilitation::remove_patient(std::vector<RehabRoom>::iterator& room_found){
     {
-        // std::lock_guard<std::mutex> lg(change_room_status_mtx);
-        room_found->is_occupied = false;
-        cv.notify_all();
+        std::lock_guard<std::mutex> lg(refresh_mtx);
+        wclear(room_found->window);
+        wrefresh(room_found->window);
     }
-
-    std::lock_guard<std::mutex> lg(refresh_mtx);
-    wclear(room_found->window);
-    wrefresh(room_found->window);
+    
+    std::lock_guard<std::mutex> lg(change_room_status_mtx);
+    room_found->is_occupied = false;
+    cv.notify_one();
 }
