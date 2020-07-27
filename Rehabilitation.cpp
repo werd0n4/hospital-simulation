@@ -2,75 +2,82 @@
 
 
 Rehabilitation::Rehabilitation(){
-    window = newwin(win_height, win_width, y_max/4, 3./5*x_max);
-    patients_after_rehab = 0;
-    empty_seats.store(true);
-
-    clear_window();
-}
-
-void Rehabilitation::clear_window(){
-    werase(window);
-    wattron(window, COLOR_PAIR(yellow));
-    box(window, 0, 0);
-    wattroff(window, COLOR_PAIR(yellow));
-    mvwprintw(window, 1, win_width/2 - 14, "Patients on rehabilitation:");
-    
-    std::lock_guard<std::mutex> lg(refresh_mtx);
-    wrefresh(window);
-}
-
-void Rehabilitation::display_patients_list(){
-    for(int i = 0; i < patients.size(); ++i){
-        mvwprintw(window, 3 + i, 1, "%d: ", patients[i].id);
+    title_window = newwin(title_win_height, win_width, y_max/4-1, 3./5*x_max);
+    mvwprintw(title_window, 1, win_width/2 - 14, "Patients on rehabilitation:");
+    wattron(title_window, COLOR_PAIR(yellow));
+    box(title_window, 0, 0);
+    wattroff(title_window, COLOR_PAIR(yellow));
+    {
+        std::lock_guard<std::mutex> lg(refresh_mtx);
+        wrefresh(title_window);
     }
-    
-    std::lock_guard<std::mutex> lg(refresh_mtx);
-    wrefresh(window);
-}
 
-void Rehabilitation::add_patient(const Patient& _patient){
-    std::unique_lock<std::mutex> ul(mtx);
-    cv.wait(ul, [this]{return empty_seats.load();});
-    patients.push_back(_patient);
-    display_patients_list();
-    if(patients.size() >= patients_limit)
-        empty_seats.store(false);
-}
-
-void Rehabilitation::remove_patient(const Patient& _patient){
-    ++patients_after_rehab;
-    if(patients_after_rehab == patients_limit){
-        patients.clear();
-        patients_after_rehab = 0;
-        clear_window();    
-        display_patients_list();
-        empty_seats.store(true);
-        cv.notify_one();
+    for(int i = 0; i < patients_limit; ++i){
+        rehab_rooms.push_back(RehabRoom{i, win_width, y_max/4. + 2 + i, 3./5*x_max});
+        std::lock_guard<std::mutex> lg(refresh_mtx);
+        wrefresh(rehab_rooms[i].window);
     }
 }
 
-void Rehabilitation::display_patient_progress(const Patient& patient, int time){
-    int bar_width, bar_start_pos;
-    time = time / (win_width-2);
-    std::deque<Patient>::iterator it = std::find(patients.begin(), patients.end(), patient);
-    int index = std::distance(patients.begin(), it);
+void Rehabilitation::rehab_patient(Patient& patient, const int time){
+    bool found_room = false;
+    std::unique_ptr<RehabRoom> room_found;
 
-    if(patients[index].id >= 10){
-        bar_width = win_width - 8;
-        bar_start_pos = 5;
+    patient.change_status("Waiting for rehabilitation");
+    while(!found_room){
+        for(auto& rehab_room : rehab_rooms){
+            std::lock_guard<std::mutex> lg(change_room_status_mtx);
+            if(!rehab_room.is_occupied){
+                rehab_room.is_occupied = true;
+                room_found = std::make_unique<RehabRoom>(rehab_room);
+                found_room = true;
+                break;
+            }
+        }
+        if(!found_room){
+                patient.change_status("XXXXXX");
+            std::unique_lock<std::mutex> ul(waiting_for_room_mtx);
+            cv.wait(ul);
+                patient.change_status("XXXXX---2");
+        }
     }
-    else{
-        bar_width = win_width - 7;
-        bar_start_pos = 4;
+
+    wprintw(room_found->window, "%d. Patient %d:", room_found->id, patient.id);
+    {
+        std::lock_guard<std::mutex> lg(refresh_mtx);
+        wrefresh(room_found->window);
     }
-    mvwprintw(window, 3 + index, bar_start_pos, "|", patients[index].id);
-    mvwprintw(window, 3 + index, win_width - 2, "|", patients[index].id);
-    for(int i = 1; i <= bar_width; ++i){
-        std::this_thread::sleep_for(std::chrono::milliseconds(time));
-        mvwprintw(window, 3+index, i+bar_start_pos, "=");
+    patient.change_status("Rehabilitating in room: " + std::to_string(room_found->id));
+    display_patient_progress(room_found->window, time);
+    remove_patient(room_found);
+}
+
+void Rehabilitation::display_patient_progress(WINDOW* window, const int time){
+    int bar_units = win_width - 1 - 16;
+    int ml_secs = time / bar_units;
+
+    mvwprintw(window, 0, 16, "|");
+    mvwprintw(window, 0, win_width - 1, "|");
+    {
         std::lock_guard<std::mutex> refresh_guard(refresh_mtx);
         wrefresh(window);
     }
-    remove_patient(patient);
+    for(int i = 1; i < bar_units; ++i){
+        std::this_thread::sleep_for(std::chrono::milliseconds(ml_secs));
+        mvwprintw(window, 0, 16 + i, "=");
+        std::lock_guard<std::mutex> refresh_guard(refresh_mtx);
+        wrefresh(window);
+    }
+}
+
+void Rehabilitation::remove_patient(std::unique_ptr<RehabRoom>& room_found){
+    {
+        // std::lock_guard<std::mutex> lg(change_room_status_mtx);
+        room_found->is_occupied = false;
+        cv.notify_all();
+    }
+
+    std::lock_guard<std::mutex> lg(refresh_mtx);
+    wclear(room_found->window);
+    wrefresh(room_found->window);
 }

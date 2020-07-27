@@ -105,12 +105,13 @@ void Patient::undergo_surgery(){
 
 void Patient::rehabilitation(){
     time = 4000 + rand()%2001;
+    rehab_room.rehab_patient(*this, time);
+    // change_status("Waiting for rehabilitation");
+    // rehab_room.add_patient(*this);
+    // change_status("Rehabilitating");
+    // rehab_room.display_patient_progress(*this, time);
+    // rehab_room.cv.notify_one();
 
-    change_status("Waiting for rehabilitation");
-    rehab_room.add_patient(*this);
-    change_status("Rehabilitating");
-    rehab_room.display_patient_progress(*this, time);
-    rehab_room.cv.notify_one();
 }
 
 void Patient::discharge(){
