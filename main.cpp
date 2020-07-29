@@ -74,7 +74,7 @@ int main()
     init_screen();
 
     std::vector<Examination> examinations(2);
-    std::vector<Bed> beds(10);
+    std::vector<Bed> beds;
     std::vector<Doctor> doctors;
     std::vector<Patient> patients;
     std::vector<std::thread> patientThreads;
@@ -89,7 +89,8 @@ int main()
     }
     //Beds initialization
     for(int i = 0; i < 10; ++i){
-        beds[i].init(i);
+        // beds[i].init(i);
+        beds.push_back(Bed{i});
     }
     for(int i = 0; i < 3; ++i){
         doctors.push_back(Doctor{i, examinations, operatingRoom});

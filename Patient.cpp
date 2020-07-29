@@ -43,7 +43,7 @@ void Patient::change_status(const std::string& new_status){
 
 void Patient::registration(){
     change_status("Wait in queue to register");
-    std::unique_lock<std::mutex> ul(reception.mtx);
+    std::unique_lock<std::mutex> ul(reception.registration_mtx);
     reception.cv.wait(ul, [this]{return !reception.get_is_occupied();});//wait unitl reception is free
     reception.set_is_occupied(true);
     change_status("Registering");

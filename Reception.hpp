@@ -18,9 +18,10 @@ class Reception
     std::vector<Bed>& beds;
 
     public:
-    std::mutex mtx;
-    std::mutex release_bed_mtx;
-    std::mutex discharge_mtx;
+    std::mutex registration_mtx;
+    std::mutex bed_status_mtx;
+    std::mutex waiting_for_bed_mtx;
+    std::mutex discharge_patient_mtx;
     std::condition_variable cv;
     std::condition_variable discharge_cv;
 
@@ -28,7 +29,7 @@ class Reception
 
     void draw_window();
 
-    void register_patient(const Patient&);
+    void register_patient(Patient&);
 
     void discharge_patient(const Patient&);
 

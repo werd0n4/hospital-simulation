@@ -11,27 +11,23 @@ class Bed{
     const int x_max = getmaxx(stdscr);
     const int win_height = y_max/8;
     const int win_width = x_max/16;
-    int id;
-    std::atomic_bool is_occupied;
     WINDOW* window;
 
     public:
-    std::mutex mtx;
-    std::mutex discharge_mtx;
-    std::condition_variable cv;
+    int id;
+    // std::mutex mtx;
+    // std::mutex discharge_mtx;
+    // std::condition_variable cv;
+    bool is_occupied;
     int patient_id;
 
-    Bed();
+    Bed(int);
 
-    void init(int);
+    // void init(int);
 
     void draw();
 
-    void assign_patient(const Patient&);
+    void assign_patient(int);
 
     void remove_patient();
-
-    bool get_is_occupied();
-
-    void set_is_occupied(bool);
 };

@@ -2,15 +2,17 @@
 
 extern std::mutex refresh_mtx;
 
-Bed::Bed(){
-    is_occupied.store(false);
-}
-
-void Bed::init(int _id){
-    id = _id;
+Bed::Bed(int _id) : id(_id){
+    is_occupied = false;
     window = newwin(win_height, win_width, id < 5 ? 0 : win_height, id%5*win_width + 3./5*x_max);
     draw();
 }
+
+// void Bed::init(int _id){
+//     id = _id;
+//     window = newwin(win_height, win_width, id < 5 ? 0 : win_height, id%5*win_width + 3./5*x_max);
+//     draw();
+// }
 
 void Bed::draw(){
     werase(window);
@@ -24,9 +26,9 @@ void Bed::draw(){
     }
 }
 
-void Bed::assign_patient(const Patient& patient){
-    is_occupied.store(true);
-    patient_id = patient.id;
+void Bed::assign_patient(int id){
+    // is_occupied = true;
+    patient_id = id;
     mvwprintw(window, 3, 3, "%d", patient_id);
     {
         std::lock_guard<std::mutex> lg(refresh_mtx);
@@ -35,15 +37,7 @@ void Bed::assign_patient(const Patient& patient){
 }
 
 void Bed::remove_patient(){
-    is_occupied.store(false);
+    is_occupied = false;
     patient_id = -1;
     draw();
-}
-
-bool Bed::get_is_occupied(){
-    return is_occupied;
-}
-
-void Bed::set_is_occupied(bool x){
-    is_occupied.store(x);
 }

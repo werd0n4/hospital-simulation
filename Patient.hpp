@@ -26,6 +26,7 @@ class Patient{
 
     public:
     int id;
+    int bed_id;
 
     Patient(int _id, std::vector<Examination>&, OperatingRoom&, Rehabilitation&, Reception&);
 

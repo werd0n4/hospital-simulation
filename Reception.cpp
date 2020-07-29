@@ -1,5 +1,8 @@
 #include "Reception.hpp"
 
+template<typename Room>
+Room& find_empty_room(std::vector<Room>& rooms, std::mutex& change_room_status_mtx, std::mutex& waiting_for_room_mtx, std::condition_variable& cv);
+
 Reception::Reception(std::vector<Bed>& _beds) : beds(_beds) {
     is_occupied.store(false);
     registration_time = 1000;
@@ -20,7 +23,7 @@ void Reception::draw_window(){
     wrefresh(window);
 }
 
-void Reception::register_patient(const Patient& patient){
+void Reception::register_patient(Patient& patient){
     int time = registration_time + rand()%1001;
     time = time / (win_width-2);
     mvwprintw(window, 3, 3, "Registering patient nr %d", patient.id);
@@ -30,21 +33,9 @@ void Reception::register_patient(const Patient& patient){
         wrefresh(window);
     }
 
-    bool bed_found = false;
-    while(!bed_found){
-        for(auto& bed : beds){
-            std::lock_guard<std::mutex> lg(bed.mtx);
-            if(!bed.get_is_occupied()){
-                bed.assign_patient(patient);
-                bed_found = true;
-                break;
-            }
-        }
-        if(!bed_found){
-            std::unique_lock<std::mutex> ul(release_bed_mtx);
-            cv.wait(ul);
-        }
-    }
+    Bed& bed_found = find_empty_room(beds, bed_status_mtx, waiting_for_bed_mtx, cv);
+    bed_found.assign_patient(patient.id);
+    patient.bed_id = bed_found.id;
 
     draw_window();
     mvwprintw(window, 3, 3, "Registering patient nr %d", patient.id);
@@ -60,13 +51,9 @@ void Reception::register_patient(const Patient& patient){
 }
 
 void Reception::discharge_patient(const Patient& patient){
-    for(Bed& bed : beds){
-        std::lock_guard<std::mutex> lg(bed.mtx);
-        if(bed.patient_id == patient.id){
-            bed.remove_patient();
-            cv.notify_one();
-        }
-    }
+        std::lock_guard<std::mutex> lg(discharge_patient_mtx);
+        beds[patient.bed_id].remove_patient();
+        cv.notify_one();
 }
 
 bool Reception::get_is_occupied(){
