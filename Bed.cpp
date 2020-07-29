@@ -8,12 +8,6 @@ Bed::Bed(int _id) : id(_id){
     draw();
 }
 
-// void Bed::init(int _id){
-//     id = _id;
-//     window = newwin(win_height, win_width, id < 5 ? 0 : win_height, id%5*win_width + 3./5*x_max);
-//     draw();
-// }
-
 void Bed::draw(){
     werase(window);
     wattron(window, COLOR_PAIR(green));
@@ -27,7 +21,6 @@ void Bed::draw(){
 }
 
 void Bed::assign_patient(int id){
-    // is_occupied = true;
     patient_id = id;
     mvwprintw(window, 3, 3, "%d", patient_id);
     {

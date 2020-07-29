@@ -23,22 +23,9 @@ Rehabilitation::Rehabilitation(){
 
 void Rehabilitation::rehab_patient(Patient& patient, const int time){
     int index;
-    // std::vector<RehabRoom>::iterator room_found;
 
     patient.change_status("Waiting for rehabilitation");
-    // while(true){
-    //     std::lock_guard<std::mutex> lg(change_room_status_mtx);
-    //     room_found = std::find_if(rehab_rooms.begin(), rehab_rooms.end(), [](RehabRoom& rehab_room){return !rehab_room.is_occupied;});
-    //     if(room_found == rehab_rooms.end()){
-    //         std::unique_lock<std::mutex> ul(waiting_for_room_mtx);
-    //         cv.wait(ul);
-    //     }else{
-    //         room_found->is_occupied = true;
-    //         break;
-    //     }
-    // }
     RehabRoom& room_found = find_empty_room(rehab_rooms, change_room_status_mtx, waiting_for_room_mtx, cv);
-
 
     wprintw(room_found.window, "%d. Patient %d:", room_found.id, patient.id);
     {
@@ -68,7 +55,6 @@ void Rehabilitation::display_patient_progress(WINDOW* window, const int time){
     }
 }
 
-// void Rehabilitation::remove_patient(std::vector<RehabRoom>::iterator& room_found){
 void Rehabilitation::remove_patient(RehabRoom& room_found){
     {
         std::lock_guard<std::mutex> lg(refresh_mtx);

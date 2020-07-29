@@ -15,15 +15,10 @@ class Bed{
 
     public:
     int id;
-    // std::mutex mtx;
-    // std::mutex discharge_mtx;
-    // std::condition_variable cv;
     bool is_occupied;
     int patient_id;
 
     Bed(int);
-
-    // void init(int);
 
     void draw();
 

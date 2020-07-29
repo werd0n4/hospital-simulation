@@ -87,9 +87,7 @@ int main()
     for(int i = 0; i < 2; ++i){
         examinations[i].init(i);
     }
-    //Beds initialization
     for(int i = 0; i < 10; ++i){
-        // beds[i].init(i);
         beds.push_back(Bed{i});
     }
     for(int i = 0; i < 3; ++i){
