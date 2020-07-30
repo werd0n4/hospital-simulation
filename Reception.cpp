@@ -1,7 +1,7 @@
 #include "Reception.hpp"
 
 template<typename Room>
-Room& find_empty_room(std::vector<Room>& rooms, std::mutex& change_room_status_mtx, std::mutex& waiting_for_room_mtx, std::condition_variable& cv);
+Room& find_empty_room(std::vector<Room>& rooms, std::mutex& change_room_status_mtx, std::mutex& waiting_for_room_mtx, std::condition_variable& cv, bool Room::* MemPtr);
 
 Reception::Reception(std::vector<Bed>& _beds) : beds(_beds) {
     is_occupied.store(false);
@@ -33,7 +33,7 @@ void Reception::register_patient(Patient& patient){
         wrefresh(window);
     }
 
-    Bed& bed_found = find_empty_room(beds, bed_status_mtx, waiting_for_bed_mtx, cv);
+    Bed& bed_found = find_empty_room(beds, bed_status_mtx, waiting_for_bed_mtx, cv, &Bed::is_occupied);
     bed_found.assign_patient(patient.id);
     patient.bed_id = bed_found.id;
 

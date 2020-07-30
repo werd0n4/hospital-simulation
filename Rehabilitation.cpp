@@ -1,7 +1,7 @@
 #include "Rehabilitation.hpp"
 
 template<typename Room>
-Room& find_empty_room(std::vector<Room>& rooms, std::mutex& change_room_status_mtx, std::mutex& waiting_for_room_mtx, std::condition_variable& cv);
+Room& find_empty_room(std::vector<Room>& rooms, std::mutex& change_room_status_mtx, std::mutex& waiting_for_room_mtx, std::condition_variable& cv, bool Room::* MemPtr);
 
 Rehabilitation::Rehabilitation(){
     title_window = newwin(title_win_height, win_width, y_max/4-1, 3./5*x_max);
@@ -25,7 +25,7 @@ void Rehabilitation::rehab_patient(Patient& patient, const int time){
     int index;
 
     patient.change_status("Waiting for rehabilitation");
-    RehabRoom& room_found = find_empty_room(rehab_rooms, change_room_status_mtx, waiting_for_room_mtx, cv);
+    RehabRoom& room_found = find_empty_room(rehab_rooms, change_room_status_mtx, waiting_for_room_mtx, cv, &RehabRoom::is_occupied);
 
     wprintw(room_found.window, "%d. Patient %d:", room_found.id, patient.id);
     {
