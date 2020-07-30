@@ -14,7 +14,9 @@ class Examination
     public:
     int id, patient_id, doctor_id;
     std::atomic<bool> is_patient_in;
-    std::atomic<bool> is_doctor_in;
+    // std::atomic<bool> is_doctor_in;
+    // bool is_patient_in;
+    bool is_doctor_in;
     std::atomic<bool> is_exam_finished;
     std::mutex pat_mtx;
     std::mutex doc_mtx;
