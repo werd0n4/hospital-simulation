@@ -71,32 +71,15 @@ void Doctor::examine(int exam_quantity){
     static std::mutex searching_mtx;
     static std::mutex waiting_mtx;
     static std::condition_variable cv;
-    // std::vector<Examination>::iterator found_room;
 
-    Examination& found_room = find_empty_room(exams, searching_mtx, waiting_mtx, cv, &Examination::is_doctor_in);
-
-    //doctor is looking for free examination room
     change_status("Waiting for exam room");
-    // while(true){
-    //     std::lock_guard<std::mutex> lg(searching_mtx);
-    //     found_room = std::find_if(exams.begin(), exams.end(), [](Examination& exam){return !exam.is_doctor_in.load();});
-    //     if(found_room == exams.end()){
-    //         std::unique_lock<std::mutex> ul(waiting_mtx);
-    //         cv.wait(ul);
-    //     } else{
-    //         found_room->is_doctor_in.store(true);
-    //         found_room->doctor_id = id;
-    //         found_room->print_info_about_sim();
-    //         break;
-    //     }
-    // }
-
+    Examination& found_room = find_empty_room(exams, searching_mtx, waiting_mtx, cv, &Examination::is_doctor_in);
 
     //examin simulation: in exam room there are doctor and patient
     for(int i = 0; i < exam_quantity; ++i){
         change_status("Waiting for patient in "+std::to_string(found_room.id));
         std::unique_lock<std::mutex> ul(found_room.doc_mtx);
-        found_room.cv.wait(ul, [this, &found_room]{return found_room.is_patient_in.load();});
+        found_room.cv.wait(ul, [this, &found_room]{return found_room.is_patient_in;});
 
         change_status("Examing patient");
         clear_progres_window();

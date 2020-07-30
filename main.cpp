@@ -23,17 +23,17 @@ bool running;
 
 //template function to look for empty room
 template<typename Room>
-Room& find_empty_room(std::vector<Room>& rooms, std::mutex& change_room_status_mtx, std::mutex& waiting_for_room_mtx, std::condition_variable& cv, bool Room::* MemPtr){
+Room& find_empty_room(std::vector<Room>& rooms, std::mutex& change_room_status_mtx, std::mutex& waiting_for_room_mtx, std::condition_variable& cv, bool Room::* is_occupied){
     typename std::vector<Room>::iterator room_found;
 
     while(true){
         std::lock_guard<std::mutex> lg(change_room_status_mtx);
-        room_found = std::find_if(rooms.begin(), rooms.end(), [MemPtr](Room& room){return !(room.*MemPtr);});
+        room_found = std::find_if(rooms.begin(), rooms.end(), [is_occupied](Room& room){return !(room.*is_occupied);});
         if(room_found == rooms.end()){
             std::unique_lock<std::mutex> ul(waiting_for_room_mtx);
             cv.wait(ul);
         }else{
-            *room_found.*MemPtr = true;
+            *room_found.*is_occupied = true;
             break;
         }
     }
