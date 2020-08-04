@@ -23,7 +23,9 @@ bool running;
 
 //template function to look for empty room
 template<typename Room>
-Room& find_empty_room(std::vector<Room>& rooms, std::mutex& change_room_status_mtx, std::mutex& waiting_for_room_mtx, std::condition_variable& cv, bool Room::* is_occupied){
+Room& find_empty_room(std::vector<Room>& rooms, std::mutex& change_room_status_mtx,
+                      std::mutex& waiting_for_room_mtx, std::condition_variable& cv, bool Room::* is_occupied)
+{
     typename std::vector<Room>::iterator room_found;
 
     while(true){
