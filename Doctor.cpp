@@ -74,6 +74,8 @@ void Doctor::examine(int exam_quantity){
 
     change_status("Waiting for exam room");
     Examination& found_room = find_empty_room(exams, searching_mtx, waiting_mtx, cv, &Examination::is_doctor_in);
+    found_room.doctor_id = id;
+    found_room.print_info_about_sim();
 
     //examin simulation: in exam room there are doctor and patient
     for(int i = 0; i < exam_quantity; ++i){
@@ -94,7 +96,9 @@ void Doctor::examine(int exam_quantity){
             }
         }
         
+
         found_room.is_exam_finished.store(true);
+        found_room.is_doctor_in = false;
         found_room.cv.notify_all();
         found_room.print_info_about_sim();
     }
