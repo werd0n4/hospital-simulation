@@ -57,6 +57,7 @@ void Patient::registration(){
 }
 
 void Patient::go_for_exam(){
+    static std::mutex change_status_mtx;
     static std::mutex searching_mtx;
     static std::mutex waiting_mtx;
     static std::condition_variable cv;
@@ -65,15 +66,17 @@ void Patient::go_for_exam(){
     //find empty examination room
     change_status("Waiting for room");
     Examination& room_found = find_empty_room(exams, searching_mtx, waiting_mtx, cv, &Examination::is_patient_in);
-    room_found.cv.notify_all();
+    // room_found.cv.notify_all();
     room_found.patient_id = id;
     room_found.print_info_about_sim();
 
     change_status("In room "+std::to_string(room_id));
-    std::unique_lock<std::mutex> ul(room_found.pat_mtx);
+    // std::unique_lock<std::mutex> ul(room_found.pat_mtx);
+    std::unique_lock<std::mutex> ul(change_status_mtx);
     room_found.cv.wait(ul, [&room_found, room_id]{return room_found.is_exam_finished.load();});
     room_found.is_exam_finished.store(false);
     room_found.is_patient_in = false;
+    room_found.cv.notify_all();
     room_found.print_info_about_sim();
     change_status("End");
 }
